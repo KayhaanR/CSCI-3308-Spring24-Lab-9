@@ -1,1 +1,11 @@
-text
+Team Number: 3
+Team Name: Dockers
+Team Members:
+    Aiden Devine, aide8765, aide8765@colorado.edu
+    William Hardee, WilliamHardeeIsCool, wiha7618@colorado.edu
+    Kayhaan Rashiq, KayhaanR, kara7946@colorado.edu
+    Sopan Nair, sopannair, sona7630@colorado.edu
+    Nicholas Kopiwoda, Achoowy, niko7200@colorado.edu
+    Sameer Kulkarni, sameerk777, saku3803@colorado.edu
+Application Name: MovieMaster
+Application Description:
