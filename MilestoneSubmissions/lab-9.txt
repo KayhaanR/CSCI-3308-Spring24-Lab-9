@@ -8,7 +8,13 @@ Team Members:
     Nicholas Kopiwoda, Achoowy, niko7200@colorado.edu
     Sameer Kulkarni, sameerk777, saku3803@colorado.edu
 Application Name: MovieMaster
+<<<<<<< HEAD
 Application Description:
 Vision Statement: For movie enthusiasts who love to discuss and share discourse
 on a shared platform about their passions. 
 Communications plan: Communicate on 
+=======
+Application Description: MovieMaster is a movie review aggregation site that collects movie reviews across different platforms and aggregates them into a collective average on our own rating scale. Users on our site can register accounts, log in, and submit their own reviews/ratings on our scale, which will be added into the average rating score. We will be pulling review data from the following websites: Rotten Tomatoes, MetaCritic, IMDB, Entertainment Weekly, and NPR. Additional features will include embedded trailers, Recommended For You, and Filter By Genre, Search.
+
+The goal of this website is to offer a one stop shop for movie fans to view an overall consensus rating that eliminates bias from platform to platform. The aggregate rating on our site will reflect the opinions of critics from diverse backgrounds on different platforms. Users won't have to cross reference different sites to get a hollistic rating. Additionally, we will provide unique features to draw people to our website, such as "TrailerFlix" which is a scroll-based media viewing component which allows users to scroll through trailers for movies. If at any point they are interested in a movie, they can click to see the rating page with reviews embedded. Otherwise, they may continue scrolling to their heart's content. 
+>>>>>>> refs/remotes/origin/main
