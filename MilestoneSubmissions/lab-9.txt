@@ -12,7 +12,10 @@ Application Name: MovieMaster
 Vision Statement: For movie enthusiasts who love to discuss and share discourse
 on a shared platform about their passions. 
 
-Communications plan: Communicate on Slack with weekly zoom meetings
+Communications plan: Communicate on Slack with weekly zoom Meetings
+
+Group Meetings: Mondays after lecture
+TA Meetings: Mondays 2:45 PM
 
 Application Description:
     MovieMaster is a movie review aggregation site that collects movie reviews across different platforms and aggregates them into a collective average on our own rating scale. Users on our site can register accounts, log in, and submit their own reviews/ratings on our scale, which will be added into the average rating score. We will be pulling review data from the following websites: Rotten Tomatoes, MetaCritic, IMDB, Entertainment Weekly, and NPR. Additional features will include embedded trailers, Recommended For You, and Filter By Genre, Search.
