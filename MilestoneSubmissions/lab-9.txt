@@ -14,6 +14,8 @@ on a shared platform about their passions.
 
 Communications plan: Communicate on Slack with weekly zoom Meetings
 
+Development Methodology: Agile
+
 Group Meetings: Mondays after lecture
 TA Meetings: Mondays 2:45 PM
 
