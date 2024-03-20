@@ -9,6 +9,8 @@ const session = require('express-session');
 const bcrypt = require('bcrypt'); 
 const axios = require('axios');
 
+const apiKey = '61bad045';
+
 const hbs = handlebars.create({
   extname: 'hbs',
   layoutsDir: __dirname + '/views/layouts',
@@ -54,9 +56,35 @@ app.use( bodyParser.urlencoded({
 }));
 
 
+// *****************************************************
+// <!-- Section 4 : API Routes -->
+// *****************************************************
 
+// AJAX call function
+
+function fetchMovieData(movieTitle) {
+  const url = `https://img.omdbapi.com/?apikey=${apiKey}&t=${encodeURIComponent(movieTitle)}`;
+
+  // Fetch request
+  fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response not ok');
+      }
+
+      return response.json();
+    })
+    .then(data => {
+      console.log(data);
+      // Handle data here
+    })
+    .catch(error => {
+      console.error('Problem occurred with fetch: ', error);
+    });
+}
 
 app.get('/', (req, res) => {
+  fetchMovieData('Barbie');
   res.redirect('/login');
 })
 
