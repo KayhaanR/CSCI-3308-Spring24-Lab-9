@@ -26,6 +26,7 @@ const dbConfig = {
 
 const db = pgp(dbConfig);
 
+
 db.connect()
   .then(obj => {
     console.log('Database connection successful'); 
@@ -38,7 +39,92 @@ db.connect()
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    saveUninitialized: false,
+    resave: false,
+  })
+);
 app.use(bodyParser.json());
+
+app.use( bodyParser.urlencoded({
+  extended:true,
+}));
+
+
+
+
+app.get('/', (req, res) => {
+  res.redirect('/login');
+})
+
+app.get('/login', (req, res) => {
+  res.render('pages/login');
+})
+
+app.post('/login', (req, res) => {
+  db.any('SELECT * FROM users WHERE username = $1', [req.body.username])
+  .then( data => {
+      // check if password from request matches with password in DB
+      if(data.length === 0) {
+          res.redirect('/register')
+      }
+      else {
+          bcrypt.compare(req.body.password, data[0].password)
+          .then(match => {
+              if(match) {
+                  req.session.user = req.body.username;
+                  req.session.save();     
+                  res.render('pages/home')
+              }
+              else {
+                  res.render('pages/login', {
+                      error: true,
+                      message: "wrong password",
+                  });
+              }
+          })
+          .catch(err => {
+              res.render('pages/login', {
+                  error: true,
+                  message: err.message,
+              });
+          });
+      }
+
+  })
+  .catch(err => {
+      res.render('pages/login', {
+        error: true,
+        message: err.message,
+      });
+  });   
+});
+
+app.get('/register', (req, res) => {
+  res.render('pages/register');
+});
+
+app.post('/register', async (req, res) => {
+
+  const hash = await bcrypt.hash(req.body.password, 10);
+  
+
+  await db.any(`INSERT INTO users (username, password) VALUES ($1, $2);`,
+  [req.body.username, hash]).then(data => {
+    res.redirect('/login')
+
+  })
+  .catch(err => {
+    res.redirect('/register')
+  });   
+
+
+});
+
+
 
 
 app.listen(3000);
