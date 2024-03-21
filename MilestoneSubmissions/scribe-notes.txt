@@ -1,0 +1,19 @@
+scribe notes 3/18/2024
+
+We have not looked at prototypes for the APIs that we need to use
+Flowchart is in github, aiden is still working on figma wireframe
+Everyone is in the github repository
+We have A team meeting 
+Note down team meetings and get a time set each week
+Confirm API’s by wednesday
+We have some planned features, aiden has planned a prototype on Figma on how our website will look, aiden described the components of the website
+Not much coding has been done, emphasis must be placed on finding API’s 
+Create a plan for the upcoming week, every team member must add commits
+Make a list of things that must be completed every week, finish it all by Friday
+Create release notes for friday and write some code for the progress
+Add api’s to release notes in the github repository
+Whatever we have add to repo
+Also add discussions we have had in our own team meetings into the release notes on GH
+After wednesday, make a project board about the different features we’re implementing
+Friday is api’s and project board, and noting down all discussions we have had about features and conclusions we have come to about how we are going to implement features 
+
