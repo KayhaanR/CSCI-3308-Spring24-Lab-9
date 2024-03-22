@@ -97,7 +97,10 @@ app.post('/login', (req, res) => {
   .then( data => {
       // check if password from request matches with password in DB
       if(data.length === 0) {
-          res.redirect('/register')
+        res.render('pages/login', {
+          error: true,
+          message: "Username Not Found",
+        });
       }
       else {
           bcrypt.compare(req.body.password, data[0].password)
@@ -110,7 +113,7 @@ app.post('/login', (req, res) => {
               else {
                   res.render('pages/login', {
                       error: true,
-                      message: "wrong password",
+                      message: "Wrong Password",
                   });
               }
           })
@@ -136,22 +139,33 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-
-  const hash = await bcrypt.hash(req.body.password, 10);
+  db.any('SELECT * FROM users WHERE username = $1', [req.body.username])
+  .then(async data => {
+    if(data.length == 0) {
+      const hash = await bcrypt.hash(req.body.password, 10);
   
-
-  await db.any(`INSERT INTO users (username, password) VALUES ($1, $2);`,
-  [req.body.username, hash]).then(data => {
-    res.redirect('/login')
+      await db.any(`INSERT INTO users (username, password) VALUES ($1, $2);`,
+      [req.body.username, hash]).then(data => {
+        res.redirect('/login')
+      })
+      .catch(err => {
+        res.redirect('/register')
+      });   
+    }
+    else {
+      res.render('pages/register', {
+        error: true,
+        message: "Username already exists",
+      });
+    }
 
   })
-  .catch(err => {
-    res.redirect('/register')
-  });   
-
-
 });
 
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.render('pages/logout');
+})
 
 
 
