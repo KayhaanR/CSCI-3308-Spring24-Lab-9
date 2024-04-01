@@ -1,10 +1,12 @@
 scribe notes 4/1/2024
 
 API is working, just need to implement
+successfully pulled info from movie title
+finished login/register/logout - William
 for friday: 
     submit meeting notes to MEETING folder
-    finish wireframe of website
-    navbar, search for movie and display popup
+    navbar, search for movie and display popup - Sameer
         ~ full intregration of api
     youtube api to pull trailers - Aiden
     make it look prettier
+    maybe start working on flix if possible
