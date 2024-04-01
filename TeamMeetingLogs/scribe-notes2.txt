@@ -1,0 +1,10 @@
+scribe notes 4/1/2024
+
+API is working, just need to implement
+for friday: 
+    submit meeting notes to MEETING folder
+    finish wireframe of website
+    navbar, search for movie and display popup
+        ~ full intregration of api
+    youtube api to pull trailers - Aiden
+    make it look prettier
