@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS movies_to_genres;
+DROP TABLE IF EXISTS user_to_movie_liked;
 
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS external_reviewers;
@@ -36,12 +37,42 @@ CREATE TABLE movies_to_genres (
 
 CREATE TABLE reviews (
     review_id INTEGER PRIMARY KEY, --Probably sequential
-    reviewer_id VARCHAR(50) NOT NULL, --maps to users or external reviewers
     movie_id INT NOT NULL,
-    rating INTEGER
+    rating INTEGER,
+    external_review BOOLEAN NOT NULL, --if true, fill external_id. Else fill user_id
+    user_id VARCHAR(50),
+    external_id VARCHAR(50)
 );
 
 CREATE TABLE user_to_movie_liked (
      user_id VARCHAR(50) NOT NULL,
      movie_id INT NOT NULL
 );
+
+ALTER TABLE movies_to_genres
+    ADD CONSTRAINT FK_movie_id
+        FOREIGN KEY (movie_id) REFERENCES movies(movie_id);
+
+ALTER TABLE movies_to_genres
+    ADD CONSTRAINT FK_genre_id
+        FOREIGN KEY (genre_id) REFERENCES genres(genre_id);
+
+ALTER TABLE reviews
+    ADD CONSTRAINT FK_internal_review_id
+        FOREIGN KEY (user_id) REFERENCES users(username);
+
+ALTER TABLE reviews
+    ADD CONSTRAINT FK_external_review_id
+        FOREIGN KEY (external_id) REFERENCES external_reviewers(reviewer_id);
+
+ALTER TABLE reviews
+    ADD CONSTRAINT FK_movie_id
+        FOREIGN KEY (movie_id) REFERENCES movies(movie_id);
+
+ALTER TABLE user_to_movie_liked
+    ADD CONSTRAINT FK_user_id
+        FOREIGN KEY (user_id) REFERENCES users(username);
+
+ALTER TABLE user_to_movie_liked
+    ADD CONSTRAINT FK_movie_id
+        FOREIGN KEY (movie_id) REFERENCES movies(movie_id);
