@@ -1,0 +1,9 @@
+Team Meeting 4/1
+
+William working on login/register
+API working
+need to populate database first and foremost
+working on navbar, almost done
+model is hard, but nicholas is working on it
+aiden will work on UI after kayhaan works on designing pages
+sopan and aiden working on youtube API
