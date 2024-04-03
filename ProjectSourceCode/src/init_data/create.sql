@@ -30,13 +30,18 @@ CREATE TABLE genres (
 );
 
 CREATE TABLE movies_to_genres (
-  movie_id INT NOT NULL,
-  genre_id INT NOT NULL
+    movie_id INT NOT NULL,
+    genre_id INT NOT NULL
 );
 
 CREATE TABLE reviews (
-     review_id INTEGER PRIMARY KEY, --Probably sequential
-     reviewer_id VARCHAR(50) NOT NULL, --maps to users or external reviewers
-     movie_id INT NOT NULL,
-     rating INTEGER
+    review_id INTEGER PRIMARY KEY, --Probably sequential
+    reviewer_id VARCHAR(50) NOT NULL, --maps to users or external reviewers
+    movie_id INT NOT NULL,
+    rating INTEGER
+);
+
+CREATE TABLE user_to_movie_liked (
+     user_id VARCHAR(50) NOT NULL,
+     movie_id INT NOT NULL
 );
