@@ -28,6 +28,8 @@ const dbConfig = {
 
 const db = pgp(dbConfig);
 
+app.use(express.static(path.join(__dirname, "Resources")));
+
 
 db.connect()
   .then(obj => {

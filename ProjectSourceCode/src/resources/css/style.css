@@ -4,3 +4,12 @@
     align-items: center;
     height: 100vh;
 }
+
+.card {
+    border-radius: 0;
+  }
+
+.btn {
+    border-radius: 0;
+    background-color: black;
+}
