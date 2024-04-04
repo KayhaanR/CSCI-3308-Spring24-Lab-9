@@ -65,7 +65,8 @@ app.use( bodyParser.urlencoded({
 // AJAX call function
 
 function fetchMovieData(movieTitle) {
-  const url = `https://img.omdbapi.com/?apikey=${apiKey}&t=${encodeURIComponent(movieTitle)}`;
+  const url = `https://www.omdbapi.com/?apikey=${apiKey}&t=${movieTitle}`;
+
 
   // Fetch request
   fetch(url)
@@ -86,7 +87,7 @@ function fetchMovieData(movieTitle) {
 }
 
 app.get('/', (req, res) => {
-  fetchMovieData('Barbie');
+  fetchMovieData('The Matrix');
   res.redirect('/login');
 })
 
