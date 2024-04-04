@@ -137,6 +137,10 @@ app.post('/login', (req, res) => {
   });   
 });
 
+app.get('/flix', (req, res) => {
+  res.render('pages/flix');
+});
+
 app.get('/register', (req, res) => {
   res.render('pages/register');
 });
