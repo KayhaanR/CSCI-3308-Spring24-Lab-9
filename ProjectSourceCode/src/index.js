@@ -80,6 +80,12 @@ function fetchMovieData(movieTitle) {
     .then(data => {
       console.log(data);
       // Handle data here
+      db.any(`INSERT INTO movies (name, year, description, genre, director, actors, language, awards, metacritic, imdb) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`, 
+      [data.Title, data.Year, data.Plot, data.Genre, data.Director, data.Actors, data.Language, data.Awards, data.Metascore, data.imdbRating])
+      .then(data => {
+        console.log(data)
+      })
+
     })
     .catch(error => {
       console.error('Problem occurred with fetch: ', error);
@@ -87,11 +93,12 @@ function fetchMovieData(movieTitle) {
 }
 
 app.get('/', (req, res) => {
-  fetchMovieData('The Matrix');
+  console.log(fetchMovieData('Barbie'));
   res.redirect('/login');
 })
 
 app.get('/login', (req, res) => {
+  console.log('testing');
   res.render('pages/login');
 })
 
@@ -143,6 +150,7 @@ app.get('/flix', (req, res) => {
 
 app.get('/register', (req, res) => {
   res.render('pages/register');
+  console.log('testing');
 });
 
 app.post('/register', async (req, res) => {
