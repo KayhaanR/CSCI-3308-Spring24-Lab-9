@@ -153,18 +153,19 @@ app.post('/register', async (req, res) => {
       await db.any(`INSERT INTO users (username, password) VALUES ($1, $2);`,
       [req.body.username, hash]).then(data => {
         res.redirect('/login')
+      
       })
       .catch(err => {
-        res.redirect('/register')
+        res.status(400).redirect('/register')
       });   
     }
     else {
-      res.render('pages/register', {
+      res.status(400).render('pages/register', {
         error: true,
         message: "Username already exists",
       });
+   
     }
-
   })
 });
 

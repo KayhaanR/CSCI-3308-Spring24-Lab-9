@@ -76,3 +76,6 @@ ALTER TABLE user_to_movie_liked
 ALTER TABLE user_to_movie_liked
     ADD CONSTRAINT FK_movie_id
         FOREIGN KEY (movie_id) REFERENCES movies(movie_id);
+
+
+
