@@ -1,11 +1,14 @@
 Release Notes for 4-5-24:
     * login/register/logout fully implemented - William
-    * nav bar fully implemented (not all pages implemented, but nav bar working) - Sameer
-    * create.sql completed - Nicholas
-    * updated fetchMovieData functionality to inset move data into SQL movies table - Sopan
+    * nav bar fully implemented - Sameer
+    * create.sql completed and full API access purchased - Nicholas
+    * updated fetchMovieData functionality to insert movie data into SQL movies table - Sopan
+        - API fully implemented
     * added more fields to create.sql - Sopan
     * basic implementation of flix using YouTube playlist and hardcoded shuffle feature - Aiden
         - will implement either YouTube API instead or will pull movie title from each movie in playlist 
             and work with our DB in order to implement "Add" functionality
+        - thought YouTube API wasn't practical at first but looks doable after further research
     * added navbar to main site pages - Aiden
-    
+    * fixed Home route for navbar and added routes to every page in index.js - Aiden
+
