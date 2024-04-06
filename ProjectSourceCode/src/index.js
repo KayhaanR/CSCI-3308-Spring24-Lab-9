@@ -65,7 +65,8 @@ app.use( bodyParser.urlencoded({
 // AJAX call function
 
 function fetchMovieData(movieTitle) {
-  const url = `https://img.omdbapi.com/?apikey=${apiKey}&t=${encodeURIComponent(movieTitle)}`;
+  const url = `https://www.omdbapi.com/?apikey=${apiKey}&t=${movieTitle}`;
+
 
   // Fetch request
   fetch(url)
@@ -79,6 +80,12 @@ function fetchMovieData(movieTitle) {
     .then(data => {
       console.log(data);
       // Handle data here
+      db.any(`INSERT INTO movies (name, year, description, genre, director, actors, language, awards, metacritic, imdb) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`, 
+      [data.Title, data.Year, data.Plot, data.Genre, data.Director, data.Actors, data.Language, data.Awards, data.Metascore, data.imdbRating])
+      .then(data => {
+        console.log(data)
+      })
+
     })
     .catch(error => {
       console.error('Problem occurred with fetch: ', error);
@@ -86,11 +93,12 @@ function fetchMovieData(movieTitle) {
 }
 
 app.get('/', (req, res) => {
-  fetchMovieData('Barbie');
+  console.log(fetchMovieData('Barbie'));
   res.redirect('/login');
 })
 
 app.get('/login', (req, res) => {
+  console.log('testing');
   res.render('pages/login');
 })
 
@@ -136,8 +144,25 @@ app.post('/login', (req, res) => {
   });   
 });
 
+app.get('/home', (req, res) => {
+  res.render('pages/home');
+});
+
+app.get('/flix', (req, res) => {
+  res.render('pages/flix');
+});
+
+app.get('/forYou', (req, res) => {
+  res.render('pages/forYou');
+});
+
+app.get('/profile', (req, res) => {
+  res.render('pages/profile');
+});
+
 app.get('/register', (req, res) => {
   res.render('pages/register');
+  console.log('testing');
 });
 
 app.post('/register', async (req, res) => {

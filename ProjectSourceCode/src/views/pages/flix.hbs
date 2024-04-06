@@ -1,0 +1,52 @@
+{{> nav}}
+
+<style>
+    .header {
+        text-align: center;
+        background-color: #000000;
+        color: #ffffff;
+        padding: 20px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 36px;
+        letter-spacing: 2px;
+    }
+
+    body {
+        background-color: #000000;
+    }
+
+    #playlist-player {
+        width: 80%;
+        height: 80%;
+        border: none;
+    }
+</style>
+
+<div class="header">
+    Grab your popcorn, and enjoy a stream of *mostly* uninterrupted trailers!
+</div>
+<iframe style="display: block; margin: 0 auto;" id="playlist-player" src="" allowfullscreen></iframe>
+<div style="color:aqua; margin: 0 auto">
+    *To implement: either pull movie titles from videos and then from OMDB database in order to implement "Add" or figure out YT API and pull everything from there*
+</div>
+
+<script>
+        const videoIds = [
+        "CYYtLXfquy0",
+        "LdOM0x0XDMo",
+        "rBxcF-r9Ibs",
+        "gBLWpKbC3ww",
+        "28dHbIR_NB4",
+        "tyKyboTBsU4",
+        "V6wWKNij_1M",
+        "VH39NQapCfQ",
+        "d2sJNee7FQ4",
+        "vn9mMeWcgoM",
+    ];
+
+    const randomVideoId = videoIds[Math.floor(Math.random() * videoIds.length)];
+
+    const playlistId = "PLPKaZQAWre5aECAN-X5-iiHoWxu3c1Q6_";
+    const iframe = document.getElementById('playlist-player');
+    iframe.src = `https://www.youtube.com/embed/${randomVideoId}?list=${playlistId}`;
+</script>
