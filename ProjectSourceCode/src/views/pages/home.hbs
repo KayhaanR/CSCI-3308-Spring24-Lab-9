@@ -1,2 +1,111 @@
-<h1> home</h1>
-<p style="color:white;"><a href="/logout">Logout</a></p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Carousel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <style>
+        header {
+            color: white;
+            padding: 10px; 
+            text-align: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 36px;
+            letter-spacing: 2px;
+        }
+
+        .carousel-inner {
+            width: 80%; /* Adjust the width as desired */
+            margin: 0 auto; /* Center the carousel */
+        }
+
+        .carousel-item {
+            height: 400px; /* Adjust height as needed */
+        }
+
+        .feature-img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .carousel-caption {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            color: black; /* Change arrow color as needed */
+        }
+
+        #carousel-bottom-indicators {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #carousel-bottom-indicators button {
+            background-color: #fff;
+            border: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin: 0 5px;
+            padding: 0;
+        }
+
+        #carousel-bottom-indicators button.active {
+            background-color: #343a40; /* Change active indicator color */
+        }
+    </style>
+</head>
+<body style="background-color:#343a40">
+    {{> nav}}
+    <header>
+        <h1>MovieMaster</h1>
+    </header>
+    <div class="home-page-parent-div">
+        <div id="wrapper">
+            <div id="carousel" class="carousel slide" data-bs-ride="carousel" data-interval="5000">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="https://parade.com/.image/ar_1:1%2Cc_fill%2Ccs_srgb%2Cfl_progressive%2Cq_auto:good%2Cw_1200/MTk0NDg3NzEyODkwMjM0Mzcz/margot-robbie-barbie-movie-2023.jpg" class="feature-img" alt="Movie 1">
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5>Movie 1</h5>
+                            <p>Description of Movie 1</p>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://m.media-amazon.com/images/M/MV5BMzdiYWE1NDgtMmZhZS00ZmU4LWI5ZmItMTEzZDlkY2ViYzBlXkEyXkFqcGdeQWFybm8@._V1_QL75_UY281_CR0,0,500,281_.jpg" class="feature-img" alt="Movie 2">
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5>Movie 2</h5>
+                            <p>Description of Movie 2</p>
+                        </div>
+                    </div>
+                    <!-- Add more carousel items here -->
+                </div>
+                <a class="carousel-control-prev" href="#carousel" role="button" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carousel" role="button" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </a>
+                <div id="carousel-bottom-indicators">
+                    <button type="button" data-bs-target="#carousel" data-bs-slide-to="0" class="active"></button>
+                    <button type="button" data-bs-target="#carousel" data-bs-slide-to="1"></button>
+                    <!-- Add more buttons for additional carousel items -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
