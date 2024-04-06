@@ -11,4 +11,7 @@ Release Notes for 4-5-24:
         - thought YouTube API wasn't practical at first but looks doable after further research
     * added navbar to main site pages - Aiden
     * fixed Home route for navbar and added routes to every page in index.js - Aiden
+    * added the navbar and a basic carousel framework on the home page - Kayhaan
+        - page is still incomplete but will be finished with the addition of redirecting users when they click on a movie
+        - cleaner and finalized UI in the works
 
