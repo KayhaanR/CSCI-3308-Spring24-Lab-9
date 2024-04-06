@@ -144,8 +144,20 @@ app.post('/login', (req, res) => {
   });   
 });
 
+app.get('/home', (req, res) => {
+  res.render('pages/home');
+});
+
 app.get('/flix', (req, res) => {
   res.render('pages/flix');
+});
+
+app.get('/forYou', (req, res) => {
+  res.render('pages/forYou');
+});
+
+app.get('/profile', (req, res) => {
+  res.render('pages/profile');
 });
 
 app.get('/register', (req, res) => {
