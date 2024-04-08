@@ -28,7 +28,7 @@ describe('Server!', () => {
 });
 
 // *********************** TODO: WRITE 2 UNIT TESTCASES **************************
-describe('Testing Add User API', () => {
+describe('Testing Register API', () => {
     it('positive : /register', done => {
       chai
         .request(server)
@@ -41,12 +41,38 @@ describe('Testing Add User API', () => {
     });
   });
 
-  describe('Testing Add User API', () => {
+  describe('Testing Register API', () => {
     it('negative : /register', done => {
       chai
         .request(server)
         .post('/register')
         .send({username: 'John Doe', password: 'passwrod2'})
+        .end((err, res) => {
+          res.should.have.status(400);
+          done();
+        });
+    });
+  });
+
+  describe('Testing Login API', () => {
+    it('positive : /login', done => {
+      chai
+        .request(server)
+        .post('/login')
+        .send({username: 'John Doe', password: 'password'})
+        .end((err, res) => {
+          res.should.have.status(200);
+          done();
+        });
+    });
+  });
+
+  describe('Testing Login API', () => {
+    it('negative : /login', done => {
+      chai
+        .request(server)
+        .post('/login')
+        .send({username: 'John Doe', password: 'wrongpasword'})
         .end((err, res) => {
           res.should.have.status(400);
           done();

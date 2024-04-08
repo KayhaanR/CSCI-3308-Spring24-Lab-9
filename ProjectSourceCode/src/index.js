@@ -110,10 +110,10 @@ app.post('/login', (req, res) => {
               if(match) {
                   req.session.user = req.body.username;
                   req.session.save();     
-                  res.render('pages/home')
+                  res.status(200).render('pages/home')
               }
               else {
-                  res.render('pages/login', {
+                  res.status(400).render('pages/login', {
                       error: true,
                       message: "Wrong Password",
                   });
@@ -145,28 +145,42 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-  db.any('SELECT * FROM users WHERE username = $1', [req.body.username])
-  .then(async data => {
-    if(data.length == 0) {
-      const hash = await bcrypt.hash(req.body.password, 10);
-  
-      await db.any(`INSERT INTO users (username, password) VALUES ($1, $2);`,
-      [req.body.username, hash]).then(data => {
-        res.redirect('/login')
-      
-      })
-      .catch(err => {
-        res.status(400).redirect('/register')
-      });   
-    }
-    else {
-      res.status(400).render('pages/register', {
-        error: true,
-        message: "Username already exists",
-      });
-   
-    }
-  })
+  if(req.body.username.length < 4) {
+    res.status(400).render('pages/register', {
+      error: true,
+      message: "Username is too short",
+    });
+  }
+  else if(req.body.password.length < 4){
+    res.status(400).render('pages/register', {
+      error: true,
+      message: "Password is too short",
+    });
+  }
+  else {
+    db.any('SELECT * FROM users WHERE username = $1', [req.body.username])
+    .then(async data => {
+      if(data.length == 0) {
+        const hash = await bcrypt.hash(req.body.password, 10);
+    
+        await db.any(`INSERT INTO users (username, password) VALUES ($1, $2);`,
+        [req.body.username, hash]).then(data => {
+          res.redirect('/login')
+        
+        })
+        .catch(err => {
+          res.status(400).redirect('/register')
+        });   
+      }
+      else {
+        res.status(400).render('pages/register', {
+          error: true,
+          message: "Username already exists",
+        });
+    
+      }
+    })
+  }
 });
 
 app.get('/logout', (req, res) => {
