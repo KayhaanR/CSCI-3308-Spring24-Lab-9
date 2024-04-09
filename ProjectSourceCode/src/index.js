@@ -64,33 +64,43 @@ app.use( bodyParser.urlencoded({
 
 // AJAX call function
 
-function fetchMovieData(movieTitle) {
-  const url = `https://img.omdbapi.com/?apikey=${apiKey}&t=${encodeURIComponent(movieTitle)}`;
+function fetchMovieData() {
+  const fetch = require('node-fetch');
 
-  // Fetch request
-  fetch(url)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response not ok');
+  var url = 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1';
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlNWI0NzEyYzk4OWE4MWZlMTRhZmYzZTdlZGRlYTE1MyIsInN1YiI6IjY2MTQ1ZDEwYTZhNGMxMDE2MmJjZWVmMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.bLYsk7fx4GQ4U4XWkIO0EDxr15I8mQeT9bmw4GH-LnY'
+    }
+  };
+
+  fetch(url, options)
+    .then(res => res.json())
+    .then(json => {
+      for(const tmdbData of json.results) {
+        url = `https://www.omdbapi.com/?apikey=${apiKey}&t=${tmdbData.title}`;
+
+        fetch(url)
+          .then(response => response.json())
+          .then(omdbData => {
+              db.any(`INSERT INTO movies (movie_id, image_path, name, year, description, genre, director, actors, language, awards, metacritic, imdb) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`, 
+      [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Genre, omdbData.Director, omdbData.Actors, omdbData.Language, omdbData.Awards, omdbData.Metascore, omdbData.imdbRating])
+          })
       }
+    })
 
-      return response.json();
-    })
-    .then(data => {
-      console.log(data);
-      // Handle data here
-    })
-    .catch(error => {
-      console.error('Problem occurred with fetch: ', error);
-    });
+    .catch(err => console.error('error:' + err));
 }
 
+
 app.get('/', (req, res) => {
-  fetchMovieData('Barbie');
   res.redirect('/login');
 })
 
 app.get('/login', (req, res) => {
+  console.log('testing');
   res.render('pages/login');
 })
 
@@ -136,12 +146,25 @@ app.post('/login', (req, res) => {
   });   
 });
 
+app.get('/home', (req, res) => {
+  res.render('pages/home');
+});
+
 app.get('/flix', (req, res) => {
   res.render('pages/flix');
 });
 
+app.get('/forYou', (req, res) => {
+  res.render('pages/forYou');
+});
+
+app.get('/profile', (req, res) => {
+  res.render('pages/profile');
+});
+
 app.get('/register', (req, res) => {
   res.render('pages/register');
+  console.log('testing');
 });
 
 app.post('/register', async (req, res) => {
@@ -191,6 +214,8 @@ app.get('/logout', (req, res) => {
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
+
+fetchMovieData();
 
 module.exports = app.listen(3000);
 console.log('Server is listening on port 3000');

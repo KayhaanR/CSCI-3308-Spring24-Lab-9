@@ -1,9 +1,30 @@
 {{> message}}
 
-<div class="container"> <!-- Inlined because external stylesheet is not working for some reason  -->
+<style>
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .card {
+    border-radius: 0;
+  }
+
+  .btn {
+    border-radius: 0;
+    background-color: black;
+  }
+</style>
+<!-- Inlined because external stylesheet is not working for some reason  -->
+
+<div class="container"> 
   <div class="card shadow-lg">
     <div class="card-body">
-      <div class="card-title"><h5>Login</h5></div>
+      <div class="card-title">
+        <h5>Login</h5>
+      </div>
       <form method="POST" action="/login">
         <div class="form-group">
           <label for="username">Username</label>

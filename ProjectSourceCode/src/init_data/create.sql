@@ -18,11 +18,20 @@ CREATE TABLE external_reviewers ( --reviewer pulled from other website
 );
 
 CREATE TABLE movies (
-    movie_id INT PRIMARY KEY, --movies might have the same name
-    image_path VARCHAR(80),
+    movie_id SERIAL PRIMARY KEY, --movies might have the same name
+    image_path VARCHAR(150),
     name VARCHAR(50) NOT NULL,
-    description VARCHAR(350),
-    year DATE NOT NULL
+    description VARCHAR(450),
+    year VARCHAR(20) NOT NULL,
+    genre VARCHAR(100),
+    director VARCHAR(100),
+    actors VARCHAR(100),
+    language VARCHAR(100),
+    awards VARCHAR(100),
+    metacritic VARCHAR(100),
+    imdb VARCHAR(100)
+
+
 );
 
 CREATE TABLE genres (

@@ -1,2 +1,185 @@
-<h1> home</h1>
-<p style="color:white;"><a href="/logout">Logout</a></p>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+    <style>
+      body {
+        background-color: #222;
+        font-family: Arial, sans-serif;
+        margin: 0;
+      }
+
+      h1 {
+        color:white;
+        text-align: center;
+        font-size: 50px;
+        padding-top: 40px;
+        padding-bottom: 40px;
+        font-weight: normal;
+        margin-bottom: 0;
+        font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+      }
+
+      .scroll-tray {
+        white-space: nowrap;
+      }
+      .scroll-tray div {
+        display: inline-block;
+      }
+
+      .scroll-tray img {
+        border-radius: 0.3rem;
+        margin: 7px 5px;
+        padding: 0;
+        width: 340px;
+      }
+
+      .scroll-holder {
+        overflow-x: hidden;
+      }
+
+      .scroll-holder .scroll-tray:first-child {
+        animation: scroll-tray-hero 180s linear infinite;
+      }
+
+      .scroll-holder .scroll-tray:last-child {
+        animation: scroll-tray-hero 120s linear infinite;
+      }
+
+      @keyframes scroll-tray-hero {
+        0% {
+          transform: translateX(0);
+        }
+
+        99.99% {
+          transform: translateX(-7098px);
+        }
+
+        100% {
+          transform: translateX(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    {{> nav}}
+    <section>
+      <h1>Welcome to Movie Master! Explore, Rate, and Discover the Magic of Movies.</h1>
+    </section>
+    <section>
+      <div class="scroll-holder">        
+          <div class="scroll-tray">
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/yYpARXL0NzWWVSksmJz7d0fXkg4.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/2sADrLwMQof6yYmrJRSa04tFZuS.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/66A9MqXOyVFCssoloscw79z8Tew.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/qhb1qOilapbapxWQn9jtRCMwXJF.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/5qHoazZiaLe7oFBok7XlUhg96f2.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/6faYaQyiBPhqAizldJKq21mIVaE.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/A7EByudX0eOzlkQ2FIbogzyazm2.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/fbbj3viSUDEGT1fFFMNpHP1iUjw.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/mKWalirPreEdCKDJjc5TKeOP2xi.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/6R0xEIeXpOJt3vg1SsQuJkOKBWu.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/7lTnXOy0iNtBAdRP3TZvaKJ77F6.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/wd7b4Nv9QBHDTIjc2m7sr0IUMoh.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/mBaXZ95R2OxueZhvQbcEWy2DqyO.jpg" />
+            </div>
+          </div>
+          <div class="scroll-tray">
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/hbhFnRzzg6ZDmm8YAmxBnQpQIPh.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/xfSAoBEm9MNBjmlNcDYLvLSMlnq.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/lxM6kqilAdpdhqUl2biYp5frUxE.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/lxM6kqilAdpdhqUl2biYp5frUxE.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/wuMc08IPKEatf9rnMNXvIDxqP4W.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/5weKu49pzJCt06OPpjvT80efnQj.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/A0LZHXUzo5C60Oahvt7VxvwuzHw.jpg" />
+            </div>
+            <div>
+              <img src="https://image.tmdb.org/t/p/w500/uxzzxijgPIY7slzFvMotPv8wjKA.jpg" />
+            </div>
+          </div>
+      </div>
+    </section>
+  </body>
+</html>
