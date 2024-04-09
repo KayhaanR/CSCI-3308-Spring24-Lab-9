@@ -1,0 +1,9 @@
+Scribe Notes 4/8/2024
+
+Home page is functionally complete
+  - further modifications for redirecting to a selected movie required
+Unsolved database issues/roadblocks
+  - Youtube API potentially not needed as Varsha recommended TMDB API
+  - we have decided to switch from the OMDB API to TMDB
+  - once implemented, FLIX will be fully operational after a few tweaks
+'For You' page and 'Profile' page still unfinished
