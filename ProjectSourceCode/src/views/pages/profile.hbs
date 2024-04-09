@@ -1,1 +1,81 @@
 {{> nav}}
+<style>
+            .second-row-wrapper{
+                text-align:center;
+                height:50%;
+                display:flex;
+            }
+            .saved-movies{
+                display: inline-block; 
+                vertical-align: bottom;
+                background-color: #adb5bd; 
+                width: 50%;              
+            }
+            .saved-reviews{
+                display: inline-block;
+                 vertical-align: top;
+                 background-color: #adb5bd;
+                 width: 50%;
+            }
+            .profile-row{
+                text-align: center;
+                height: 45%;
+            }
+            .logout{
+                text-align: right;
+                height:5%;
+                margin-bottom: 20px;
+            }
+            .logout-button{
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            
+            }
+            .logout-button:hover {
+            background-color: #c82333;
+            }
+            .profile-image{
+                max-width: 100%;
+        max-height: 200px; /* set maximum height */
+        width: auto;
+        height: auto;
+        display: block;
+        margin: 0 auto; /* center the image */
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrapper">
+            <div class="logout">
+                <a class="logout-button" href="/logout">Logout</a>
+            </div>
+            <div class="profile-row">
+                <div class="profile-picture">
+                    
+                    <form action="/profile" method="POST" enctype="multipart/form-data"> 
+                        <input type="file" name="profileImage"/> 
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form> 
+                    <img src="{{profile_picture}}" alt="Profile Picture" class="profile-image">
+                </div> 
+                <p>Hello, {{username}} </p>            
+            </div>
+            <div class="second-row-wrapper">
+                <div class="saved-reviews">
+                    <ul>
+                        <li>saved reviews here, right here i am just p[utting a bunch of text in the div to test if the styling works properly, i am just doing this to see if the text wraps or not, this will all be replaced by dynamically generated hb content. </li>
+                        <li>more saved reviews, </li>
+                    </ul>
+                </div>
+                <div class="saved-movies">
+                    <ul>
+                        <li>saved movies</li>
+                        <li>more saved movies, right here i am just p[utting a bunch of text in the div to test if the styling works properly, i am just doing this to see if the text wraps or not, this will all be replaced by dynamically generated hb content.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>

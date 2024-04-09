@@ -1,5 +1,10 @@
 version: '3.9'
 services:
+  fix-permissions:
+    image: alpine:3.7
+    volumes:
+      - uploads:/uploads
+    command: chown -R 1000:1000 /uploads
   db:
     image: postgres:14
     env_file: .env
@@ -11,18 +16,24 @@ services:
       - group-project:/var/lib/postgresql/data
       - ./src/init_data:/docker-entrypoint-initdb.d
   web:
-    image: node:lts
-    user: 'node'
+    image: node
+    user: 'root'
     working_dir: /home/node/app
     env_file: .env
     environment:
       - NODE_ENV=development
     depends_on:
+      - fix-permissions
       - db
     ports:
       - '3000:3000'
     volumes:
       - ./src:/home/node/app
+      - image-uploads:/uploads
+      - uploads:/uploads
+
     command: 'npm start'
 volumes:
   group-project:
+  image-uploads: 
+  uploads:
