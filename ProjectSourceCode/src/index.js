@@ -110,7 +110,7 @@ function fetchMovieData() {
         fetch(url)
           .then(response => response.json())
           .then(omdbData => {
-              console.log(tmdbData.id)
+            
 
               //CHECKS IF MOVIE IS IN OMDB
               if(omdbData.Title != null) {

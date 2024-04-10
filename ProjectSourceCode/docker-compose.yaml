@@ -26,11 +26,11 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - ./src:/home/node/app
+      - ./:/home/node/app
       - image-uploads:/uploads
       - uploads:/uploads
 
-    command: 'npm start'
+    command: 'npm run testandrun '
 volumes:
   group-project:
   image-uploads: 
