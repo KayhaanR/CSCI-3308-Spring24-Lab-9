@@ -31,8 +31,8 @@ const dbConfig = {
 
 const db = pgp(dbConfig);
 
-app.use(express.static(path.join(__dirname, "Resources")));
-app.use(express.static('/uploads'))
+// app.use(express.static(path.join(__dirname, "/resources")));
+// app.use('/uploads',express.static('uploads'))
 
 db.connect()
   .then(obj => {
@@ -219,53 +219,39 @@ app.get('/profile', async (req, res) => {
   }
 });
 
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, 'uploads/'); // specify the destination directory
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads')
   },
-  filename: function(req, file, cb) {
-    cb(null, file.originalname); // specify the filename
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)
   }
-});
+})
+var upload = multer({ storage: storage })
 
-// initialize multer with the specified storage
-const upload = multer({ storage: storage });
+/*
+app.use('/a',express.static('/b'));
+Above line would serve all files/folders inside of the 'b' directory
+And make them accessible through http://localhost:3000/a.
+*/
+app.use(express.static(__dirname + '/'));
+app.use('/uploads', express.static('uploads'));
 
-// profile route with multer middleware
-app.post('/profile', upload.single('profileImage'), async (req, res) => {
-  // Multer saves the file in req.file
-  if (req.file) {
-    try {
+app.post('/profile', upload.single('profile-file'), function (req, res, next) {
+// req.file is the `profile-file` file
+// req.body will hold the text fields, if there were any
       const username = req.session.user; 
-      const profilePicturePath = req.file.filename;
-      console.log(profilePicturePath);
-      await db.one('UPDATE users SET profile_picture = $1 WHERE username = $2 returning *', [profilePicturePath, username]);
-      
-      console.log('Profile picture path updated in the database.');
+      const profilePicturePath = req.file.path;
+      db.one('UPDATE users SET profile_picture = $1 WHERE username = $2 returning *', [profilePicturePath, username]);
+console.log(JSON.stringify(req.file))
+// var response = '<a href="/">Home</a><br>'
+// response += "Files uploaded successfully.<br>"
+// response += `<img src="${req.file.path}" /><br>`
 
-      
-      const defaultPicture = '/personicon.jpg';
-      const previousProfilePicture = await db.oneOrNone('SELECT profile_picture FROM users WHERE username = $1', [username]);
-      if (previousProfilePicture && previousProfilePicture.profile_picture !== defaultPicture) {
-        const filePath = path.join('uploads/', previousProfilePicture.profile_picture);
-        fs.unlink(filePath, (err) => {
-          if (err) {
-            console.error('Error deleting previous profile picture:', err);
-          } else {
-            console.log('Previous profile picture deleted successfully.');
-          }
-        });
-      }
-
-      res.redirect('/profile');
-    } catch (error) {
-      console.error('Error updating profile picture:', error);
-      res.status(500).send('Internal Server Error');
-    }
-  } else {
-    res.status(400).send('No file uploaded.');
-  }
+res.render('pages/profile', {
+  profile_picture: req.file.path,
 });
+})
 
 
 app.get('/register', (req, res) => {
