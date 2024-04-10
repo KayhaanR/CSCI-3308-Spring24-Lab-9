@@ -46,6 +46,7 @@
         display: block;
         margin: 0 auto; /* center the image */
             }
+            
         </style>
     </head>
     <body>
@@ -54,15 +55,14 @@
                 <a class="logout-button" href="/logout">Logout</a>
             </div>
             <div class="profile-row">
-                <div class="profile-picture">
-                    
-                    <form action="/profile" method="POST" enctype="multipart/form-data"> 
+                <div class="profile-picture">                  
+                    <form action="/profile" method="POST" enctype="multipart/form-data" id="form-field"> 
                         <input type="file" name="profileImage"/> 
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form> 
                     <img src="{{profile_picture}}" alt="Profile Picture" class="profile-image">
                 </div> 
-                <p>Hello, {{username}} </p>            
+                <p id="user-name">Hello, {{username}} </p>            
             </div>
             <div class="second-row-wrapper">
                 <div class="saved-reviews">

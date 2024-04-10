@@ -175,30 +175,30 @@ app.get('/profile', async (req, res) => {
 
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    cb(null, '/uploads/'); // Specify the destination directory
+    cb(null, '/uploads/'); // specify the destination directory
   },
   filename: function(req, file, cb) {
-    cb(null, file.originalname); // Specify the filename
+    cb(null, file.originalname); // specify the filename
   }
 });
 
-// Initialize multer with the specified storage
+// initialize multer with the specified storage
 const upload = multer({ storage: storage });
 
-// Profile route with multer middleware
+// profile route with multer middleware
 app.post('/profile', upload.single('profileImage'), async (req, res) => {
   // Multer saves the file in req.file
   if (req.file) {
     try {
-      const username = req.session.user; // Assuming you're using sessions for authentication
+      const username = req.session.user; 
       const profilePicturePath = req.file.filename;
 
-      // Update the user's profile picture path in the database
+      
       await db.one('UPDATE users SET profile_picture = $1 WHERE username = $2 returning *', [profilePicturePath, username]);
 
       console.log('Profile picture path updated in the database.');
 
-      // Delete previous profile picture if not default
+      
       const defaultPicture = '/personicon.jpg';
       const previousProfilePicture = await db.oneOrNone('SELECT profile_picture FROM users WHERE username = $1', [username]);
       if (previousProfilePicture && previousProfilePicture.profile_picture !== defaultPicture) {
