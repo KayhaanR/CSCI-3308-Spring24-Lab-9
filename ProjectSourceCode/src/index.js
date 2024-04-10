@@ -67,7 +67,7 @@ app.use( bodyParser.urlencoded({
 function fetchMovieData() {
   const fetch = require('node-fetch');
 
-  var url = 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1';
+  var url = 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1';
   const options = {
     method: 'GET',
     headers: {
@@ -86,8 +86,10 @@ function fetchMovieData() {
           .then(response => response.json())
           .then(omdbData => {
               console.log(tmdbData.id)
-              db.any(`INSERT INTO movies (movie_id, image_path, name, year, description, genre, director, actors, language, awards, metacritic, imdb) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`, 
-      [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Genre, omdbData.Director, omdbData.Actors, omdbData.Language, omdbData.Awards, omdbData.Metascore, omdbData.imdbRating])
+              if(omdbData.Title != null) {
+                db.any(`INSERT INTO movies (movie_id, image_path, name, year, description, genre, director, actors, language, awards, metacritic, imdb) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`, 
+                [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Genre, omdbData.Director, omdbData.Actors, omdbData.Language, omdbData.Awards, omdbData.Metascore, omdbData.imdbRating])
+              }
           })
       }
     })
