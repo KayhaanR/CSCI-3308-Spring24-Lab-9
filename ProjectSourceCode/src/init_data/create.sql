@@ -9,7 +9,8 @@ DROP TABLE IF EXISTS genres;
 
 CREATE TABLE users (
     username VARCHAR(50) PRIMARY KEY, --username equivalent to reviewer_id
-    password VARCHAR(60) NOT NULL
+    password VARCHAR(60) NOT NULL,
+    profile_picture VARCHAR(255)
 );
 
 CREATE TABLE external_reviewers ( --reviewer pulled from other website
