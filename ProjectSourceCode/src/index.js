@@ -64,8 +64,30 @@ app.use( bodyParser.urlencoded({
 
 // AJAX call function
 
+function populateGenreId() {
+  const fetch = require('node-fetch');
+
+  const url = 'https://api.themoviedb.org/3/genre/movie/list?language=en';
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlNWI0NzEyYzk4OWE4MWZlMTRhZmYzZTdlZGRlYTE1MyIsInN1YiI6IjY2MTQ1ZDEwYTZhNGMxMDE2MmJjZWVmMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.bLYsk7fx4GQ4U4XWkIO0EDxr15I8mQeT9bmw4GH-LnY'
+    }
+  };
+fetch(url, options)
+  .then(res => res.json())
+  .then(json => {
+    for(const genreData of json.genres) {
+      db.any('INSERT INTO genres (genre_id, name) VALUES ($1, $2)', [genreData.id, genreData.name]);
+    }
+  })
+}
+
 function fetchMovieData() {
   const fetch = require('node-fetch');
+
+  populateGenreId()
 
   var url = 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1';
   const options = {
@@ -86,9 +108,20 @@ function fetchMovieData() {
           .then(response => response.json())
           .then(omdbData => {
               console.log(tmdbData.id)
+
+              //CHECKS IF MOVIE IS IN OMDB
               if(omdbData.Title != null) {
+                //INSERT MOVIE INTO DB
                 db.any(`INSERT INTO movies (movie_id, image_path, name, year, description, genre, director, actors, language, awards, metacritic, imdb) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`, 
-                [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Genre, omdbData.Director, omdbData.Actors, omdbData.Language, omdbData.Awards, omdbData.Metascore, omdbData.imdbRating])
+                [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Genre, omdbData.Director, omdbData.Actors, omdbData.Language, omdbData.Awards, omdbData.Metascore, omdbData.imdbRating]).then(data =>{
+                  //INSERT MOVIE INTO GENRE TO MOVIE Table
+                  for(const genreId of tmdbData.genre_ids) {
+                    db.any('INSERT INTO movies_to_genres (movie_id, genre_id) VALUES ($1, $2)', [tmdbData.id, genreId]);
+                  }
+                })
+       
+                
+            
               }
           })
       }

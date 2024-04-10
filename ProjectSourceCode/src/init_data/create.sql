@@ -30,8 +30,6 @@ CREATE TABLE movies (
     awards VARCHAR(100),
     metacritic VARCHAR(100),
     imdb VARCHAR(100)
-
-
 );
 
 CREATE TABLE genres (
