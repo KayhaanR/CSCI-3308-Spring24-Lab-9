@@ -212,7 +212,10 @@ app.get('/profile', async (req, res) => {
     const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1', [username]);
     console.log(userData); 
     // pass the user's profile picture path to the rendering engine
-    res.render('pages/profile', { profile_picture: userData ? userData.profile_picture : '/personicon.jpg' });
+    res.render('pages/profile',{ 
+      profile_picture: userData ? userData.profile_picture : '/personicon.jpg',
+      username: req.session.user
+     });
   } catch (error) {
     console.error('Error fetching profile picture:', error);
     res.status(500).send('Internal Server Error');

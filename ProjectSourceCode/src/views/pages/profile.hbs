@@ -1,7 +1,7 @@
 <style>
             .second-row-wrapper{
                 text-align:center;
-                height:50%;
+                height:45%;
                 display:flex;
             }
             .saved-movies{
@@ -54,14 +54,15 @@
                 <a class="logout-button" href="/logout">Logout</a>
             </div>
             <div class="profile-row">
-                <div class="profile-picture">                  
+                <div class="profile-picture"> 
+                    <p id="user-name">Hello, {{username}} </p>                  
                     <form action="/profile" method="POST" enctype="multipart/form-data" id="form-field"> 
                         <input type="file" name="profile-file"/> 
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form> 
                     <img src="{{profile_picture}}" alt="Profile Picture" class="profile-image">
                 </div> 
-                <p id="user-name">Hello, {{username}} </p>            
+                           
             </div>
             <div class="second-row-wrapper">
                 <div class="saved-reviews">
