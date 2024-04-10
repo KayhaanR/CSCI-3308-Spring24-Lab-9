@@ -1,11 +1,14 @@
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS movies_to_genres;
 DROP TABLE IF EXISTS user_to_movie_liked;
+DROP TABLE IF EXISTS awards;
+DROP TABLE IF EXISTS movies_to_actors;
 
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS external_reviewers;
 DROP TABLE IF EXISTS movies;
 DROP TABLE IF EXISTS genres;
+DROP TABLE IF EXISTS actors;
 
 CREATE TABLE users (
     username VARCHAR(50) PRIMARY KEY, --username equivalent to reviewer_id
@@ -24,19 +27,35 @@ CREATE TABLE movies (
     name VARCHAR(50) NOT NULL,
     description VARCHAR(450),
     year VARCHAR(20) NOT NULL,
-    genre VARCHAR(100),
-    director VARCHAR(100),
-    actors VARCHAR(100),
-    language VARCHAR(100),
-    awards VARCHAR(100),
-    metacritic VARCHAR(100),
-    imdb VARCHAR(100)
+    director VARCHAR(100) NOT NULL,
+    language VARCHAR(100) NOT NULL,
+    -- Normalize ratings before calculating total rating. --
+    metacritic_rating NUMERIC(2, 2),
+    imdb_rating NUMERIC(3,1),
+    tmbd_rating NUMERIC(2, 2),
+    -- After other ratings filled, calculate our rating. --
+    our_rating NUMERIC(3, 1),
 
+    youtube_link VARCHAR(100)
+);
 
+CREATE TABLE actors (
+    name VARCHAR(100) PRIMARY KEY
+);
+
+CREATE TABLE movies_to_actors (
+    movie_id INTEGER NOT NULL,
+    actor_name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE awards (
+    name VARCHAR(100) PRIMARY KEY,
+    year VARCHAR(20) NOT NULL,
+    movie_id INTEGER NOT NULL -- Maps to movie winning award
 );
 
 CREATE TABLE genres (
-    genre_id INT PRIMARY KEY,
+    genre_id INT PRIMARY KEY, -- These could be made the same thing.
     name VARCHAR (100) NOT NULL
 );
 
@@ -58,6 +77,18 @@ CREATE TABLE user_to_movie_liked (
      user_id VARCHAR(50) NOT NULL,
      movie_id INT NOT NULL
 );
+
+ALTER TABLE movies_to_actors
+    ADD CONSTRAINT FK_movie_id
+        FOREIGN KEY (movie_id) REFERENCES movies(movie_id);
+
+ALTER TABLE movies_to_actors
+    ADD CONSTRAINT FK_actor_name
+        FOREIGN KEY (actor_name) REFERENCES actors(name);
+
+ALTER TABLE awards
+    ADD CONSTRAINT FK_movie_id
+        FOREIGN KEY (movie_id) REFERENCES movies(movie_id);
 
 ALTER TABLE movies_to_genres
     ADD CONSTRAINT FK_movie_id
