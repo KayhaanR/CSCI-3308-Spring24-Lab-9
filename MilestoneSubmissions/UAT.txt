@@ -1,0 +1,31 @@
+All these tests will take place on localhost
+
+1. UAT for Login:
+  User must enter thw two required fields: username, and password.
+  The user can then enter any input into either of the two fields.
+  If the user exists but the password is wrong it will render an error message on the page telling the user their password was incorrect.
+  If the user doesn't exist it will render an error message on the page telling the user that an account with that username does not exists.
+
+  Test 1: User input: username: "test", password: "password"
+    This will test a correct login with creditials that were inserted into users at startup. The user should be logged in and directed to the home page.
+  Test 2: User input: username: "test", password: "wrongpassword"
+    This will test an incorrect login with correct username. Should render a message saying password is incorrect.
+  Test 3: User input username: "nottest", password: "password"
+    This should return a message saying no user exists with that name.
+
+2. UAT for Register:
+  User must enter thw two required fields: username, and password.
+  The user can then enter any input into either of the two fields.
+  If a user with the entered username already exists it should render an error saying so and clear the fields.
+  If the input for username and password is too short it should render a message saying this and clear the fields.
+
+  Test 1: User input: username: "test", password: "password"
+    This will test an incorrect register as an account with that username already exists
+  Test 2: User input: username: "test2", password: "password"
+    This will test a valid registration and should add the user to the users table and redirect to the login page
+  Test 3: User input username: "", password: ""
+    This should give an error saying the inputs where too short and the username and password min length is 4.
+
+3. UAT for likedMovies:
+  User will click a button that adds a movie to their liked movie list. If they click it again it should remove the movie.
+  When the user goes to thier profile they should be able to see all of their liked movies.
