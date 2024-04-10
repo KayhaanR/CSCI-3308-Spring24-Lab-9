@@ -180,7 +180,7 @@ app.get('/profile', async (req, res) => {
 
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    cb(null, '/uploads/'); // specify the destination directory
+    cb(null, 'uploads/'); // specify the destination directory
   },
   filename: function(req, file, cb) {
     cb(null, file.originalname); // specify the filename
@@ -197,17 +197,16 @@ app.post('/profile', upload.single('profileImage'), async (req, res) => {
     try {
       const username = req.session.user; 
       const profilePicturePath = req.file.filename;
-
-      
+      console.log(profilePicturePath);
       await db.one('UPDATE users SET profile_picture = $1 WHERE username = $2 returning *', [profilePicturePath, username]);
-
+      
       console.log('Profile picture path updated in the database.');
 
       
       const defaultPicture = '/personicon.jpg';
       const previousProfilePicture = await db.oneOrNone('SELECT profile_picture FROM users WHERE username = $1', [username]);
       if (previousProfilePicture && previousProfilePicture.profile_picture !== defaultPicture) {
-        const filePath = path.join('/uploads/', previousProfilePicture.profile_picture);
+        const filePath = path.join('uploads/', previousProfilePicture.profile_picture);
         fs.unlink(filePath, (err) => {
           if (err) {
             console.error('Error deleting previous profile picture:', err);
