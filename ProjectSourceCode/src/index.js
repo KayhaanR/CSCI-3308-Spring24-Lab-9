@@ -85,6 +85,7 @@ function fetchMovieData() {
         fetch(url)
           .then(response => response.json())
           .then(omdbData => {
+              console.log(tmdbData.id)
               db.any(`INSERT INTO movies (movie_id, image_path, name, year, description, genre, director, actors, language, awards, metacritic, imdb) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`, 
       [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Genre, omdbData.Director, omdbData.Actors, omdbData.Language, omdbData.Awards, omdbData.Metascore, omdbData.imdbRating])
           })
@@ -215,7 +216,14 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
-fetchMovieData();
+db.any('SELECT COUNT(*) FROM movies')
+  .then(data => {
+    const count = data[0].count;
+    if (count === '0') {
+      fetchMovieData(); 
+    } 
+  })
+
 
 module.exports = app.listen(3000);
 console.log('Server is listening on port 3000');
