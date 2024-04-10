@@ -85,6 +85,7 @@ function fetchMovieData() {
         fetch(url)
           .then(response => response.json())
           .then(omdbData => {
+              console.log(tmdbData.id)
               db.any(`INSERT INTO movies (movie_id, image_path, name, year, description, genre, director, actors, language, awards, metacritic, imdb) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`, 
       [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Genre, omdbData.Director, omdbData.Actors, omdbData.Language, omdbData.Awards, omdbData.Metascore, omdbData.imdbRating])
           })
@@ -120,10 +121,10 @@ app.post('/login', (req, res) => {
               if(match) {
                   req.session.user = req.body.username;
                   req.session.save();     
-                  res.render('pages/home')
+                  res.status(200).render('pages/home')
               }
               else {
-                  res.render('pages/login', {
+                  res.status(400).render('pages/login', {
                       error: true,
                       message: "Wrong Password",
                   });
@@ -168,27 +169,42 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-  db.any('SELECT * FROM users WHERE username = $1', [req.body.username])
-  .then(async data => {
-    if(data.length == 0) {
-      const hash = await bcrypt.hash(req.body.password, 10);
-  
-      await db.any(`INSERT INTO users (username, password) VALUES ($1, $2);`,
-      [req.body.username, hash]).then(data => {
-        res.redirect('/login')
-      })
-      .catch(err => {
-        res.redirect('/register')
-      });   
-    }
-    else {
-      res.render('pages/register', {
-        error: true,
-        message: "Username already exists",
-      });
-    }
-
-  })
+  if(req.body.username.length < 4) {
+    res.status(400).render('pages/register', {
+      error: true,
+      message: "Username is too short",
+    });
+  }
+  else if(req.body.password.length < 4){
+    res.status(400).render('pages/register', {
+      error: true,
+      message: "Password is too short",
+    });
+  }
+  else {
+    db.any('SELECT * FROM users WHERE username = $1', [req.body.username])
+    .then(async data => {
+      if(data.length == 0) {
+        const hash = await bcrypt.hash(req.body.password, 10);
+    
+        await db.any(`INSERT INTO users (username, password) VALUES ($1, $2);`,
+        [req.body.username, hash]).then(data => {
+          res.redirect('/login')
+        
+        })
+        .catch(err => {
+          res.status(400).redirect('/register')
+        });   
+      }
+      else {
+        res.status(400).render('pages/register', {
+          error: true,
+          message: "Username already exists",
+        });
+    
+      }
+    })
+  }
 });
 
 app.get('/logout', (req, res) => {
@@ -196,8 +212,18 @@ app.get('/logout', (req, res) => {
   res.render('pages/logout');
 })
 
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
 
-fetchMovieData();
+db.any('SELECT COUNT(*) FROM movies')
+  .then(data => {
+    const count = data[0].count;
+    if (count === '0') {
+      fetchMovieData(); 
+    } 
+  })
 
-app.listen(3000);
+
+module.exports = app.listen(3000);
 console.log('Server is listening on port 3000');
