@@ -115,8 +115,8 @@ function fetchMovieData() {
               //CHECKS IF MOVIE IS IN OMDB
               if(omdbData.Title != null) {
                 //INSERT MOVIE INTO DB
-                db.any(`INSERT INTO movies (movie_id, image_path, name, year, description, genre, director, actors, language, awards, metacritic, imdb) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`, 
-                [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Genre, omdbData.Director, omdbData.Actors, omdbData.Language, omdbData.Awards, omdbData.Metascore, omdbData.imdbRating]).then(data =>{
+                db.any(`INSERT INTO movies (movie_id, image_path, name, year, description,  director, language, metacritic_rating, imdb_rating, tmdb_rating) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`, 
+                [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Director,  omdbData.Language, omdbData.Metascore, omdbData.imdbRating, tmdbData.vote_average]).then(data =>{
                   //INSERT MOVIE INTO GENRE TO MOVIE Table
                   for(const genreId of tmdbData.genre_ids) {
                     db.any('INSERT INTO movies_to_genres (movie_id, genre_id) VALUES ($1, $2)', [tmdbData.id, genreId]);

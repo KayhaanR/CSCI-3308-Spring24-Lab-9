@@ -30,9 +30,9 @@ CREATE TABLE movies (
     director VARCHAR(100) NOT NULL,
     language VARCHAR(100) NOT NULL,
     -- Normalize ratings before calculating total rating. --
-    metacritic_rating NUMERIC(2, 2),
+    metacritic_rating VARCHAR(5),
     imdb_rating NUMERIC(3,1),
-    tmbd_rating NUMERIC(2, 2),
+    tmdb_rating INTEGER,
     -- After other ratings filled, calculate our rating. --
     our_rating NUMERIC(3, 1),
 
