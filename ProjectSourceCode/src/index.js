@@ -8,6 +8,9 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const bcrypt = require('bcrypt'); 
 const axios = require('axios');
+const multer = require('multer');
+const fs = require('fs');
+
 
 const apiKey = '61bad045';
 
@@ -29,7 +32,7 @@ const dbConfig = {
 const db = pgp(dbConfig);
 
 app.use(express.static(path.join(__dirname, "Resources")));
-
+app.use(express.static('/uploads'))
 
 db.connect()
   .then(obj => {
@@ -64,8 +67,30 @@ app.use( bodyParser.urlencoded({
 
 // AJAX call function
 
+function populateGenreId() {
+  const fetch = require('node-fetch');
+
+  const url = 'https://api.themoviedb.org/3/genre/movie/list?language=en';
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlNWI0NzEyYzk4OWE4MWZlMTRhZmYzZTdlZGRlYTE1MyIsInN1YiI6IjY2MTQ1ZDEwYTZhNGMxMDE2MmJjZWVmMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.bLYsk7fx4GQ4U4XWkIO0EDxr15I8mQeT9bmw4GH-LnY'
+    }
+  };
+fetch(url, options)
+  .then(res => res.json())
+  .then(json => {
+    for(const genreData of json.genres) {
+      db.any('INSERT INTO genres (genre_id, name) VALUES ($1, $2)', [genreData.id, genreData.name]);
+    }
+  })
+}
+
 function fetchMovieData() {
   const fetch = require('node-fetch');
+
+  populateGenreId()
 
   var url = 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1';
   const options = {
@@ -86,9 +111,20 @@ function fetchMovieData() {
           .then(response => response.json())
           .then(omdbData => {
               console.log(tmdbData.id)
+
+              //CHECKS IF MOVIE IS IN OMDB
               if(omdbData.Title != null) {
+                //INSERT MOVIE INTO DB
                 db.any(`INSERT INTO movies (movie_id, image_path, name, year, description, genre, director, actors, language, awards, metacritic, imdb) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`, 
-                [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Genre, omdbData.Director, omdbData.Actors, omdbData.Language, omdbData.Awards, omdbData.Metascore, omdbData.imdbRating])
+                [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Genre, omdbData.Director, omdbData.Actors, omdbData.Language, omdbData.Awards, omdbData.Metascore, omdbData.imdbRating]).then(data =>{
+                  //INSERT MOVIE INTO GENRE TO MOVIE Table
+                  for(const genreId of tmdbData.genre_ids) {
+                    db.any('INSERT INTO movies_to_genres (movie_id, genre_id) VALUES ($1, $2)', [tmdbData.id, genreId]);
+                  }
+                })
+       
+                
+            
               }
           })
       }
@@ -169,9 +205,68 @@ app.get('/forYou', (req, res) => {
   res.render('pages/forYou');
 });
 
-app.get('/profile', (req, res) => {
-  res.render('pages/profile');
+app.get('/profile', async (req, res) => {
+  try {
+    const username = req.session.user; 
+    // fetch the user's profile picture path from the database
+    const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1', [username]);
+    console.log(userData); 
+    // pass the user's profile picture path to the rendering engine
+    res.render('pages/profile', { profile_picture: userData ? userData.profile_picture : '/personicon.jpg' });
+  } catch (error) {
+    console.error('Error fetching profile picture:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
+
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, 'uploads/'); // specify the destination directory
+  },
+  filename: function(req, file, cb) {
+    cb(null, file.originalname); // specify the filename
+  }
+});
+
+// initialize multer with the specified storage
+const upload = multer({ storage: storage });
+
+// profile route with multer middleware
+app.post('/profile', upload.single('profileImage'), async (req, res) => {
+  // Multer saves the file in req.file
+  if (req.file) {
+    try {
+      const username = req.session.user; 
+      const profilePicturePath = req.file.filename;
+      console.log(profilePicturePath);
+      await db.one('UPDATE users SET profile_picture = $1 WHERE username = $2 returning *', [profilePicturePath, username]);
+      
+      console.log('Profile picture path updated in the database.');
+
+      
+      const defaultPicture = '/personicon.jpg';
+      const previousProfilePicture = await db.oneOrNone('SELECT profile_picture FROM users WHERE username = $1', [username]);
+      if (previousProfilePicture && previousProfilePicture.profile_picture !== defaultPicture) {
+        const filePath = path.join('uploads/', previousProfilePicture.profile_picture);
+        fs.unlink(filePath, (err) => {
+          if (err) {
+            console.error('Error deleting previous profile picture:', err);
+          } else {
+            console.log('Previous profile picture deleted successfully.');
+          }
+        });
+      }
+
+      res.redirect('/profile');
+    } catch (error) {
+      console.error('Error updating profile picture:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  } else {
+    res.status(400).send('No file uploaded.');
+  }
+});
+
 
 app.get('/register', (req, res) => {
   res.render('pages/register');
