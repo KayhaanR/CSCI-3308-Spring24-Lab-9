@@ -150,7 +150,15 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/home', (req, res) => {
-  res.render('pages/home');
+  const query = "SELECT image_path FROM movies";
+  db.any(query)
+    .then(data => {
+      res.render('pages/home', {
+        image: data
+      })
+      console.log(data)
+    })
+
 });
 
 app.get('/flix', (req, res) => {
