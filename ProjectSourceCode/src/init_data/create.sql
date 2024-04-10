@@ -20,17 +20,17 @@ CREATE TABLE external_reviewers ( --reviewer pulled from other website
 
 CREATE TABLE movies (
     movie_id SERIAL PRIMARY KEY, --movies might have the same name
-    image_path VARCHAR(80),
+    image_path VARCHAR(150),
     name VARCHAR(50) NOT NULL,
     description VARCHAR(450),
-    year VARCHAR(4) NOT NULL,
-    genre VARCHAR(50),
-    director VARCHAR(50),
-    actors VARCHAR(50),
-    language VARCHAR(50),
-    awards VARCHAR(50),
-    metacritic VARCHAR(50),
-    imdb VARCHAR(50)
+    year VARCHAR(20) NOT NULL,
+    genre VARCHAR(100),
+    director VARCHAR(100),
+    actors VARCHAR(100),
+    language VARCHAR(100),
+    awards VARCHAR(100),
+    metacritic VARCHAR(100),
+    imdb VARCHAR(100)
 
 
 );
@@ -86,3 +86,6 @@ ALTER TABLE user_to_movie_liked
 ALTER TABLE user_to_movie_liked
     ADD CONSTRAINT FK_movie_id
         FOREIGN KEY (movie_id) REFERENCES movies(movie_id);
+
+
+

@@ -67,36 +67,41 @@ app.use( bodyParser.urlencoded({
 
 // AJAX call function
 
-function fetchMovieData(movieTitle) {
-  const url = `https://www.omdbapi.com/?apikey=${apiKey}&t=${movieTitle}`;
+function fetchMovieData() {
+  const fetch = require('node-fetch');
 
+  var url = 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1';
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlNWI0NzEyYzk4OWE4MWZlMTRhZmYzZTdlZGRlYTE1MyIsInN1YiI6IjY2MTQ1ZDEwYTZhNGMxMDE2MmJjZWVmMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.bLYsk7fx4GQ4U4XWkIO0EDxr15I8mQeT9bmw4GH-LnY'
+    }
+  };
 
-  // Fetch request
-  fetch(url)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response not ok');
+  fetch(url, options)
+    .then(res => res.json())
+    .then(json => {
+      for(const tmdbData of json.results) {
+        url = `https://www.omdbapi.com/?apikey=${apiKey}&t=${tmdbData.title}`;
+
+        fetch(url)
+          .then(response => response.json())
+          .then(omdbData => {
+              console.log(tmdbData.id)
+              if(omdbData.Title != null) {
+                db.any(`INSERT INTO movies (movie_id, image_path, name, year, description, genre, director, actors, language, awards, metacritic, imdb) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`, 
+                [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Genre, omdbData.Director, omdbData.Actors, omdbData.Language, omdbData.Awards, omdbData.Metascore, omdbData.imdbRating])
+              }
+          })
       }
-
-      return response.json();
     })
-    .then(data => {
-      console.log(data);
-      // Handle data here
-      db.any(`INSERT INTO movies (name, year, description, genre, director, actors, language, awards, metacritic, imdb) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`, 
-      [data.Title, data.Year, data.Plot, data.Genre, data.Director, data.Actors, data.Language, data.Awards, data.Metascore, data.imdbRating])
-      .then(data => {
-        console.log(data)
-      })
 
-    })
-    .catch(error => {
-      console.error('Problem occurred with fetch: ', error);
-    });
+    .catch(err => console.error('error:' + err));
 }
 
+
 app.get('/', (req, res) => {
-  console.log(fetchMovieData('Barbie'));
   res.redirect('/login');
 })
 
@@ -121,10 +126,10 @@ app.post('/login', (req, res) => {
               if(match) {
                   req.session.user = req.body.username;
                   req.session.save();     
-                  res.render('pages/home')
+                  res.status(200).render('pages/home')
               }
               else {
-                  res.render('pages/login', {
+                  res.status(400).render('pages/login', {
                       error: true,
                       message: "Wrong Password",
                   });
@@ -229,27 +234,42 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-  db.any('SELECT * FROM users WHERE username = $1', [req.body.username])
-  .then(async data => {
-    if(data.length == 0) {
-      const hash = await bcrypt.hash(req.body.password, 10);
-  
-      await db.any(`INSERT INTO users (username, password) VALUES ($1, $2);`,
-      [req.body.username, hash]).then(data => {
-        res.redirect('/login')
-      })
-      .catch(err => {
-        res.redirect('/register')
-      });   
-    }
-    else {
-      res.render('pages/register', {
-        error: true,
-        message: "Username already exists",
-      });
-    }
-
-  })
+  if(req.body.username.length < 4) {
+    res.status(400).render('pages/register', {
+      error: true,
+      message: "Username is too short",
+    });
+  }
+  else if(req.body.password.length < 4){
+    res.status(400).render('pages/register', {
+      error: true,
+      message: "Password is too short",
+    });
+  }
+  else {
+    db.any('SELECT * FROM users WHERE username = $1', [req.body.username])
+    .then(async data => {
+      if(data.length == 0) {
+        const hash = await bcrypt.hash(req.body.password, 10);
+    
+        await db.any(`INSERT INTO users (username, password) VALUES ($1, $2);`,
+        [req.body.username, hash]).then(data => {
+          res.redirect('/login')
+        
+        })
+        .catch(err => {
+          res.status(400).redirect('/register')
+        });   
+      }
+      else {
+        res.status(400).render('pages/register', {
+          error: true,
+          message: "Username already exists",
+        });
+    
+      }
+    })
+  }
 });
 
 app.get('/logout', (req, res) => {
@@ -257,7 +277,18 @@ app.get('/logout', (req, res) => {
   res.render('pages/logout');
 })
 
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
+
+db.any('SELECT COUNT(*) FROM movies')
+  .then(data => {
+    const count = data[0].count;
+    if (count === '0') {
+      fetchMovieData(); 
+    } 
+  })
 
 
-app.listen(3000);
+module.exports = app.listen(3000);
 console.log('Server is listening on port 3000');
