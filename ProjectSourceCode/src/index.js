@@ -186,11 +186,11 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/home', (req, res) => {
-  const query = "SELECT image_path FROM movies";
+  const query = "SELECT movie_id, image_path FROM movies";
   db.any(query)
     .then(data => {
       res.render('pages/home', {
-        image: data
+        result: data
       })
       console.log(data)
     })
@@ -309,6 +309,24 @@ app.get('/logout', (req, res) => {
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
+
+app.get('/movieDetails', (req, res) => {
+  const movieId = req.query.id
+  db.one('SELECT * FROM movies WHERE movie_id = $1', [movieId]).then(data => {
+    res.render('pages/movieDetails', {
+      name: data.name,
+      image: data.image_path,
+      plot: data.description,
+      director: data.director,
+      metacriticRating: data.metacritic_rating,
+      imdbRating: data.imdb_rating,
+      tmdbRating: data.tmdb_rating,
+      year: data.year,
+      language: data.language
+    })
+  })
+  
+})
 
 db.any('SELECT COUNT(*) FROM movies')
   .then(data => {

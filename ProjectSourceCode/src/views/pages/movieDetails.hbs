@@ -1,0 +1,49 @@
+<style>
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 110vh;
+  }
+
+  .card {
+    border-radius: 0;
+  }
+
+  .btn {
+    border-radius: 0;
+    border-color: black;
+    background-color: black;
+  }
+
+</style>
+<div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card shadow-lg">
+        <div class="row no-gutters">
+          <div class="col-md-4">
+            <img src="{{image}}" class="card-img" alt="...">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h2 class="card-title">{{name}}</h2>
+              <p>{{director}} ({{year}})</p> 
+              <p class="card-text">{{plot}}</p>
+              <ul>
+                <li>IMDB rating: {{imdbRating}}</li>
+                <li>TMDB rating: {{tmdbRating}}</li>
+                <li>Metacritic rating: {{metacriticRating}}</li>
+              </ul>
+              <hr>
+              <div class="d-flex justify-content-between align-items-center">
+                <div>{{language}}</div>
+                <div><a href="#" class="btn btn-primary btn-md">Like</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
