@@ -3,10 +3,10 @@ const app = express();
 const handlebars = require('express-handlebars');
 const Handlebars = require('handlebars');
 const path = require('path');
-const pgp = require('pg-promise')(); 
+const pgp = require('pg-promise')();
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const bcrypt = require('bcrypt'); 
+const bcrypt = require('bcrypt');
 const axios = require('axios');
 const multer = require('multer');
 const fs = require('fs');
@@ -23,10 +23,10 @@ const hbs = handlebars.create({
 
 const dbConfig = {
   host: 'db',
-  port: 5432, 
-  database: process.env.POSTGRES_DB, 
-  user: process.env.POSTGRES_USER, 
-  password: process.env.POSTGRES_PASSWORD, 
+  port: 5432,
+  database: process.env.POSTGRES_DB,
+  user: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
 };
 
 const db = pgp(dbConfig);
@@ -36,7 +36,7 @@ const db = pgp(dbConfig);
 
 db.connect()
   .then(obj => {
-    console.log('Database connection successful'); 
+    console.log('Database connection successful');
     obj.done();
   })
   .catch(error => {
@@ -56,8 +56,8 @@ app.use(
 );
 app.use(bodyParser.json());
 
-app.use( bodyParser.urlencoded({
-  extended:true,
+app.use(bodyParser.urlencoded({
+  extended: true,
 }));
 
 
@@ -78,13 +78,13 @@ function populateGenreId() {
       Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlNWI0NzEyYzk4OWE4MWZlMTRhZmYzZTdlZGRlYTE1MyIsInN1YiI6IjY2MTQ1ZDEwYTZhNGMxMDE2MmJjZWVmMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.bLYsk7fx4GQ4U4XWkIO0EDxr15I8mQeT9bmw4GH-LnY'
     }
   };
-fetch(url, options)
-  .then(res => res.json())
-  .then(json => {
-    for(const genreData of json.genres) {
-      db.any('INSERT INTO genres (genre_id, name) VALUES ($1, $2)', [genreData.id, genreData.name]);
-    }
-  })
+  fetch(url, options)
+    .then(res => res.json())
+    .then(json => {
+      for (const genreData of json.genres) {
+        db.any('INSERT INTO genres (genre_id, name) VALUES ($1, $2)', [genreData.id, genreData.name]);
+      }
+    })
 }
 
 function fetchMovieData() {
@@ -104,34 +104,45 @@ function fetchMovieData() {
   fetch(url, options)
     .then(res => res.json())
     .then(json => {
-      for(const tmdbData of json.results) {
-        url = `https://www.omdbapi.com/?apikey=${apiKey}&t=${tmdbData.title}`;
-
-        fetch(url)
-          .then(response => response.json())
-          .then(omdbData => {
-            
-
-              //CHECKS IF MOVIE IS IN OMDB
-              if(omdbData.Title != null) {
-                //INSERT MOVIE INTO DB
-                db.any(`INSERT INTO movies (movie_id, image_path, name, year, description,  director, language, metacritic_rating, imdb_rating, tmdb_rating) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`, 
-                [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Director,  omdbData.Language, omdbData.Metascore, omdbData.imdbRating, tmdbData.vote_average]).then(data =>{
-                  //INSERT MOVIE INTO GENRE TO MOVIE Table
-                  for(const genreId of tmdbData.genre_ids) {
-                    db.any('INSERT INTO movies_to_genres (movie_id, genre_id) VALUES ($1, $2)', [tmdbData.id, genreId]);
-                  }
-                })
-       
-                
-            
+      for (const tmdbData of json.results) {
+        // Fetch the videos data for the movie
+        const videosUrl = `https://api.themoviedb.org/3/movie/${tmdbData.id}/videos?language=en-US`;
+        fetch(videosUrl, options)
+          .then(res => res.json())
+          .then(videosData => {
+            // Extract the YouTube video key from the videos data
+            let youtubeLink = '';
+            for (const video of videosData.results) {
+              if (video.site === 'YouTube' && video.type === 'Trailer') {
+                youtubeLink = `https://www.youtube.com/embed/${video.key}`;
+                break;
               }
-          })
+            }
+
+            // Fetch additional data from the OMDB API
+            url = `https://www.omdbapi.com/?apikey=${apiKey}&t=${tmdbData.title}`;
+            fetch(url)
+              .then(response => response.json())
+              .then(omdbData => {
+                //CHECKS IF MOVIE IS IN OMDB
+                if (omdbData.Title != null) {
+                  //INSERT MOVIE INTO DB
+                  db.any(`INSERT INTO movies (movie_id, image_path, name, year, description,  director, language, metacritic_rating, imdb_rating, tmdb_rating, youtube_link) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+                    [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Director, omdbData.Language, omdbData.Metascore, omdbData.imdbRating, tmdbData.vote_average, youtubeLink]).then(data => {
+                      //INSERT MOVIE INTO GENRE TO MOVIE Table
+                      for (const genreId of tmdbData.genre_ids) {
+                        db.any('INSERT INTO movies_to_genres (movie_id, genre_id) VALUES ($1, $2)', [tmdbData.id, genreId]);
+                      }
+                    })
+                }
+              })
+          });
       }
     })
-
     .catch(err => console.error('error:' + err));
 }
+
+
 
 
 app.get('/', (req, res) => {
@@ -145,44 +156,44 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
   db.any('SELECT * FROM users WHERE username = $1', [req.body.username])
-  .then( data => {
+    .then(data => {
       // check if password from request matches with password in DB
-      if(data.length === 0) {
+      if (data.length === 0) {
         res.render('pages/login', {
           error: true,
           message: "Username Not Found",
         });
       }
       else {
-          bcrypt.compare(req.body.password, data[0].password)
+        bcrypt.compare(req.body.password, data[0].password)
           .then(match => {
-              if(match) {
-                  req.session.user = req.body.username;
-                  req.session.save();     
-                  res.status(200).render('pages/home')
-              }
-              else {
-                  res.status(400).render('pages/login', {
-                      error: true,
-                      message: "Wrong Password",
-                  });
-              }
+            if (match) {
+              req.session.user = req.body.username;
+              req.session.save();
+              res.status(200).render('pages/home')
+            }
+            else {
+              res.status(400).render('pages/login', {
+                error: true,
+                message: "Wrong Password",
+              });
+            }
           })
           .catch(err => {
-              res.render('pages/login', {
-                  error: true,
-                  message: err.message,
-              });
+            res.render('pages/login', {
+              error: true,
+              message: err.message,
+            });
           });
       }
 
-  })
-  .catch(err => {
+    })
+    .catch(err => {
       res.render('pages/login', {
         error: true,
         message: err.message,
       });
-  });   
+    });
 });
 
 app.get('/home', (req, res) => {
@@ -198,7 +209,14 @@ app.get('/home', (req, res) => {
 });
 
 app.get('/flix', (req, res) => {
-  res.render('pages/flix');
+  const query = "SELECT youtube_link FROM movies";
+  db.any(query)
+    .then(data => {
+      console.log(data);  // Log the data
+      res.render('pages/flix', {
+        flix_data: JSON.stringify(data)  // Convert 'data' to a JSON string
+      })
+    })
 });
 
 app.get('/forYou', (req, res) => {
@@ -207,15 +225,15 @@ app.get('/forYou', (req, res) => {
 
 app.get('/profile', async (req, res) => {
   try {
-    const username = req.session.user; 
+    const username = req.session.user;
     // fetch the user's profile picture path from the database
     const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1', [username]);
-    console.log(userData); 
+    console.log(userData);
     // pass the user's profile picture path to the rendering engine
-    res.render('pages/profile',{ 
+    res.render('pages/profile', {
       profile_picture: userData ? userData.profile_picture : '/personicon.jpg',
       username: req.session.user
-     });
+    });
   } catch (error) {
     console.error('Error fetching profile picture:', error);
     res.status(500).send('Internal Server Error');
@@ -241,19 +259,19 @@ app.use(express.static(__dirname + '/'));
 app.use('/uploads', express.static('uploads'));
 
 app.post('/profile', upload.single('profile-file'), function (req, res, next) {
-// req.file is the `profile-file` file
-// req.body will hold the text fields, if there were any
-      const username = req.session.user; 
-      const profilePicturePath = req.file.path;
-      db.one('UPDATE users SET profile_picture = $1 WHERE username = $2 returning *', [profilePicturePath, username]);
-console.log(JSON.stringify(req.file))
-// var response = '<a href="/">Home</a><br>'
-// response += "Files uploaded successfully.<br>"
-// response += `<img src="${req.file.path}" /><br>`
+  // req.file is the `profile-file` file
+  // req.body will hold the text fields, if there were any
+  const username = req.session.user;
+  const profilePicturePath = req.file.path;
+  db.one('UPDATE users SET profile_picture = $1 WHERE username = $2 returning *', [profilePicturePath, username]);
+  console.log(JSON.stringify(req.file))
+  // var response = '<a href="/">Home</a><br>'
+  // response += "Files uploaded successfully.<br>"
+  // response += `<img src="${req.file.path}" /><br>`
 
-res.render('pages/profile', {
-  profile_picture: req.file.path,
-});
+  res.render('pages/profile', {
+    profile_picture: req.file.path,
+  });
 })
 
 
@@ -263,13 +281,13 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-  if(req.body.username.length < 4) {
+  if (req.body.username.length < 4) {
     res.status(400).render('pages/register', {
       error: true,
       message: "Username is too short",
     });
   }
-  else if(req.body.password.length < 4){
+  else if (req.body.password.length < 4) {
     res.status(400).render('pages/register', {
       error: true,
       message: "Password is too short",
@@ -277,27 +295,27 @@ app.post('/register', async (req, res) => {
   }
   else {
     db.any('SELECT * FROM users WHERE username = $1', [req.body.username])
-    .then(async data => {
-      if(data.length == 0) {
-        const hash = await bcrypt.hash(req.body.password, 10);
-    
-        await db.any(`INSERT INTO users (username, password) VALUES ($1, $2);`,
-        [req.body.username, hash]).then(data => {
-          res.redirect('/login')
-        
-        })
-        .catch(err => {
-          res.status(400).redirect('/register')
-        });   
-      }
-      else {
-        res.status(400).render('pages/register', {
-          error: true,
-          message: "Username already exists",
-        });
-    
-      }
-    })
+      .then(async data => {
+        if (data.length == 0) {
+          const hash = await bcrypt.hash(req.body.password, 10);
+
+          await db.any(`INSERT INTO users (username, password) VALUES ($1, $2);`,
+            [req.body.username, hash]).then(data => {
+              res.redirect('/login')
+
+            })
+            .catch(err => {
+              res.status(400).redirect('/register')
+            });
+        }
+        else {
+          res.status(400).render('pages/register', {
+            error: true,
+            message: "Username already exists",
+          });
+
+        }
+      })
   }
 });
 
@@ -307,7 +325,7 @@ app.get('/logout', (req, res) => {
 })
 
 app.get('/welcome', (req, res) => {
-  res.json({status: 'success', message: 'Welcome!'});
+  res.json({ status: 'success', message: 'Welcome!' });
 });
 
 app.get('/movieDetails', (req, res) => {
@@ -325,15 +343,15 @@ app.get('/movieDetails', (req, res) => {
       language: data.language
     })
   })
-  
+
 })
 
 db.any('SELECT COUNT(*) FROM movies')
   .then(data => {
     const count = data[0].count;
     if (count === '0') {
-      fetchMovieData(); 
-    } 
+      fetchMovieData();
+    }
   })
 
 
