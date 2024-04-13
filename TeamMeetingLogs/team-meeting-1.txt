@@ -7,3 +7,4 @@ working on navbar, almost done
 model is hard, but nicholas is working on it
 aiden will work on UI after kayhaan works on designing pages
 sopan and aiden working on youtube API
+
