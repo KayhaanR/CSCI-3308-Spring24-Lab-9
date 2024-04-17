@@ -24,14 +24,14 @@ CREATE TABLE external_reviewers ( --reviewer pulled from other website
 CREATE TABLE movies (
     movie_id SERIAL PRIMARY KEY, --movies might have the same name
     image_path VARCHAR(150),
-    name VARCHAR(50) NOT NULL,
+    name VARCHAR(100) NOT NULL,
     description VARCHAR(450),
     year VARCHAR(20) NOT NULL,
     director VARCHAR(100) NOT NULL,
     language VARCHAR(100) NOT NULL,
     -- Normalize ratings before calculating total rating. --
     metacritic_rating VARCHAR(5),
-    imdb_rating NUMERIC(3,1),
+    imdb_rating VARCHAR(5),
     tmdb_rating INTEGER,
     -- After other ratings filled, calculate our rating. --
     our_rating NUMERIC(3, 1),
@@ -65,11 +65,13 @@ CREATE TABLE movies_to_genres (
 );
 
 CREATE TABLE reviews (
-    review_id INTEGER PRIMARY KEY, --Probably sequential
+    review_id SERIAL PRIMARY KEY, --Probably sequential
     movie_id INT NOT NULL,
     rating INTEGER,
     external_review BOOLEAN NOT NULL, --if true, fill external_id. Else fill user_id
+    avatar_path VARCHAR(100),
     user_id VARCHAR(50),
+    review_text VARCHAR(5000),
     external_id VARCHAR(50)
 );
 

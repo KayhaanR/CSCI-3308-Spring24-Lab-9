@@ -67,6 +67,35 @@ app.use(bodyParser.urlencoded({
 
 // AJAX call function
 
+function addReviews(x) {
+  const fetch = require('node-fetch');
+
+  const url = `https://api.themoviedb.org/3/movie/${x}/reviews?language=en-US&page=1`;
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlNWI0NzEyYzk4OWE4MWZlMTRhZmYzZTdlZGRlYTE1MyIsInN1YiI6IjY2MTQ1ZDEwYTZhNGMxMDE2MmJjZWVmMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.bLYsk7fx4GQ4U4XWkIO0EDxr15I8mQeT9bmw4GH-LnY'
+    }
+  };
+
+  fetch(url, options)
+    .then(res => res.json())
+    .then(json => {
+      for(const reviews of json.results) {
+        if(reviews.content.length < 4900) { 
+          db.any('INSERT INTO external_reviewers(reviewer_id, source) SELECT $1, $2 WHERE NOT EXISTS (SELECT 1 FROM external_reviewers WHERE reviewer_id = $1)', [reviews.author, "tmdb"])
+          .then(() => {
+            return db.any('INSERT INTO reviews (movie_id, rating, external_review, avatar_path, external_id, review_text) VALUES ($1, $2, $3, $4, $5, $6)', [x, reviews.author_details.rating, true, reviews.author_details.avatar_path, reviews.author, reviews.content ]);
+          })
+          
+        }
+      }
+      
+    })
+    .catch(err => console.error('error:' + err));
+}
+
 function populateGenreId() {
   const fetch = require('node-fetch');
 
@@ -87,12 +116,11 @@ function populateGenreId() {
     })
 }
 
-function fetchMovieData() {
+function fetchMovieData(x) {
   const fetch = require('node-fetch');
 
-  populateGenreId()
 
-  var url = 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1';
+  var url = `https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=${x}`;
   const options = {
     method: 'GET',
     headers: {
@@ -105,6 +133,8 @@ function fetchMovieData() {
     .then(res => res.json())
     .then(json => {
       for (const tmdbData of json.results) {
+
+      
         // Fetch the videos data for the movie
         const videosUrl = `https://api.themoviedb.org/3/movie/${tmdbData.id}/videos?language=en-US`;
         fetch(videosUrl, options)
@@ -126,6 +156,7 @@ function fetchMovieData() {
               .then(omdbData => {
                 //CHECKS IF MOVIE IS IN OMDB
                 if (omdbData.Title != null) {
+
                   //INSERT MOVIE INTO DB
                   db.any(`INSERT INTO movies (movie_id, image_path, name, year, description,  director, language, metacritic_rating, imdb_rating, tmdb_rating, youtube_link) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
                     [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Director, omdbData.Language, omdbData.Metascore, omdbData.imdbRating, tmdbData.vote_average, youtubeLink]).then(data => {
@@ -134,6 +165,8 @@ function fetchMovieData() {
                         db.any('INSERT INTO movies_to_genres (movie_id, genre_id) VALUES ($1, $2)', [tmdbData.id, genreId]);
                       }
                     })
+              
+                    addReviews(tmdbData.id)
                 }
               })
           });
@@ -350,7 +383,10 @@ db.any('SELECT COUNT(*) FROM movies')
   .then(data => {
     const count = data[0].count;
     if (count === '0') {
-      fetchMovieData();
+      populateGenreId()
+      for (let i = 1; i < 2; i++) {
+        fetchMovieData(i);
+      }
     }
   })
 
