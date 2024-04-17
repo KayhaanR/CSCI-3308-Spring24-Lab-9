@@ -67,7 +67,7 @@ app.use(bodyParser.urlencoded({
 
 // AJAX call function
 
-function addReviews(x) {
+async function addReviews(x) {
   const fetch = require('node-fetch');
 
   const url = `https://api.themoviedb.org/3/movie/${x}/reviews?language=en-US&page=1`;
@@ -79,24 +79,29 @@ function addReviews(x) {
     }
   };
 
-  fetch(url, options)
-    .then(res => res.json())
-    .then(json => {
-      for(const reviews of json.results) {
-        if(reviews.content.length < 4900) { 
-          db.any('INSERT INTO external_reviewers(reviewer_id, source) SELECT $1, $2 WHERE NOT EXISTS (SELECT 1 FROM external_reviewers WHERE reviewer_id = $1)', [reviews.author, "tmdb"])
-          .then(() => {
-            return db.any('INSERT INTO reviews (movie_id, rating, external_review, avatar_path, external_id, review_text) VALUES ($1, $2, $3, $4, $5, $6)', [x, reviews.author_details.rating, true, reviews.author_details.avatar_path, reviews.author, reviews.content ]);
-          })
-          .catch(
-            console.log('whoops')
-          )
-          
+  try {
+    await db.tx(async t => { // Start a transaction
+      const res = await fetch(url, options); // Fetch reviews
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch reviews');
+      }
+
+      const json = await res.json();
+
+      // Insert reviews into the database
+      for (const review of json.results) {
+        if (review.content.length < 4900) {
+          await t.none('INSERT INTO external_reviewers (reviewer_id, source) VALUES ($1, $2) ON CONFLICT DO NOTHING', [review.author, 'tmdb']);
+          await t.none('INSERT INTO reviews (movie_id, rating, external_review, avatar_path, external_id, review_text) VALUES ($1, $2, $3, $4, $5, $6)', [x, review.author_details.rating, true, review.author_details.avatar_path, review.author, review.content]);
         }
       }
-      
-    })
-    .catch(err => console.error('error:' + err));
+    });
+
+    console.log('Reviews added successfully');
+  } catch (error) {
+    console.error('Error adding reviews:', error);
+  }
 }
 
 function populateGenreId() {
@@ -284,13 +289,19 @@ function performSearch(query) {
 app.get('/profile', async (req, res) => {
   try {
     const username = req.session.user;
-    // fetch the user's profile picture path from the database
+    // Fetch the user's profile picture path from the database
     const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1', [username]);
-    console.log(userData);
-    // pass the user's profile picture path to the rendering engine
+    // Pass the user's profile picture path to the rendering engine
     res.render('pages/profile', {
-      profile_picture: userData ? userData.profile_picture : '/personicon.jpg',
-      username: req.session.user
+      profile_picture: userData ? userData.profile_picture : 'resources/img/icons.jpeg',
+      username: req.session.user,
+      avatarOptions: [
+        { id: 1, path: '/resources/Img/avatar1.jpg' },
+        { id: 2, path: '/resources/Img/avatar2.jpg' },
+        { id: 3, path: '/resources/Img/avatar3.jpg' },
+        { id: 4, path: '/resources/Img/avatar4.jpg' },
+        { id: 5, path: '/resources/Img/avatar5.jpg' }
+      ]
     });
   } catch (error) {
     console.error('Error fetching profile picture:', error);
@@ -314,23 +325,39 @@ Above line would serve all files/folders inside of the 'b' directory
 And make them accessible through http://localhost:3000/a.
 */
 app.use(express.static(__dirname + '/'));
-app.use('/uploads', express.static('uploads'));
+app.use('/resources', express.static('resources'));
 
-app.post('/profile', upload.single('profile-file'), function (req, res, next) {
-  // req.file is the `profile-file` file
-  // req.body will hold the text fields, if there were any
-  const username = req.session.user;
-  const profilePicturePath = req.file.path;
-  db.one('UPDATE users SET profile_picture = $1 WHERE username = $2 returning *', [profilePicturePath, username]);
-  console.log(JSON.stringify(req.file))
-  // var response = '<a href="/">Home</a><br>'
-  // response += "Files uploaded successfully.<br>"
-  // response += `<img src="${req.file.path}" /><br>`
-
-  res.render('pages/profile', {
-    profile_picture: req.file.path,
-  });
-})
+app.post('/profile', async (req, res) => {
+  try {
+    const username = req.session.user;
+    const selectedAvatarId = req.body.avatarId; // Assuming the form sends the selected avatar ID
+    // Fetch the path of the selected avatar based on its ID
+    console.log(selectedAvatarId);
+    const avatarOptions = [
+      { id: 1, path: '/resources/Img/avatar1.jpg' },
+      { id: 2, path: '/resources/Img/avatar2.jpg' },
+      { id: 3, path: '/resources/Img/avatar3.jpg' },
+      { id: 4, path: '/resources/Img/avatar4.jpg' },
+      { id: 5, path: '/resources/Img/avatar5.jpg' }
+    ]
+    const selectedAvatar = avatarOptions.find(avatar => avatar.id === parseInt(selectedAvatarId));
+    console.log(selectedAvatar);
+    console.log(selectedAvatar.path);
+    if (!selectedAvatar) {
+      throw new Error('Invalid avatar ID');
+    }
+    // Update the user's profile with the selected avatar
+    // console.log()
+    await db.none('UPDATE users SET profile_picture = $1 WHERE username = $2', [selectedAvatar.path, username]);
+    res.render('pages/profile', {
+      username: req.session.user,
+      selectedAvatar: selectedAvatar
+    }); 
+  } catch (error) {
+    console.error('Error selecting avatar:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 app.get('/register', (req, res) => {
@@ -444,7 +471,7 @@ db.any('SELECT COUNT(*) FROM movies')
     const count = data[0].count;
     if (count === '0') {
       populateGenreId()
-      for (let i = 1; i < 2; i++) {
+      for (let i = 1; i < 5; i++) {
         fetchMovieData(i);
       }
     }

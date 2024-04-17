@@ -32,7 +32,7 @@ services:
       - image-uploads:/uploads
       - uploads:/uploads
 
-    command: 'npm run start '
+    command: 'npm run testandrun '
 volumes:
   group-project:
   image-uploads: 
