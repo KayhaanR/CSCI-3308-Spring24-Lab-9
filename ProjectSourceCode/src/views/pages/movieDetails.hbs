@@ -1,14 +1,17 @@
 <style>
   .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 110vh;
+    padding-left: 0%;
   }
-
   .card {
     border-radius: 0;
   }
+
+  .review {
+        margin: 0 auto; /* Added */
+        float: none; /* Added */
+        margin-bottom: 10px; /* Added */
+  }
+  
 
   .btn {
     border-radius: 0;
@@ -17,10 +20,14 @@
   }
 
 </style>
-<div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
+
+{{>message}}
+
+<div class="container">
   <div class="row">
-    <div class="col-md-8">
-      <div class="card shadow-lg">
+
+    <div class="col-md-6 col-12 d-flex align-items-stretch"> 
+      <div class="card shadow-lg w-100"> 
         <div class="row no-gutters">
           <div class="col-md-4">
             <img src="{{image}}" class="card-img" alt="...">
@@ -38,12 +45,79 @@
               <hr>
               <div class="d-flex justify-content-between align-items-center">
                 <div>{{language}}</div>
-                <div><a href="#" class="btn btn-primary btn-md">Like</a></div>
+                {{#if user}}
+                  <div>
+                    <form method="POST" action="/likeMovie?movieID={{id}}">
+                      <button type="submit" class="btn btn-primary">Like</button>
+                    </form>
+                  </div>
+                {{else}}
+                  <div><a href="/login" class="btn btn-primary btn-md">Like</a></div>
+                {{/if}}
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    
+
+   <div class="col-md-6 col-12">
+  <div class="card shadow-lg">
+    <div class="card-body">
+      <h2 class="card-title">Add a review</h2>
+      <form method="POST" action="/addReview?movieID={{id}}">
+        <div class="form-group">
+          <label for="rating">Rating</label>
+          <select class="form-control" name="rating">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="message">Review</label>
+          <textarea class="form-control" name="review" rows="6" placeholder="Enter your review"></textarea>
+        </div>
+        <br>
+        {{#if user}}
+          <button type="submit" class="btn btn-primary">Submit</button>
+        {{else}}
+          <div><a href="/login" class="btn btn-primary btn-md">Submit</a></div>
+        {{/if}}
+      </form>
+    </div>
+  </div>
+</div>
+  </div>
+</div>
+
+
+
+
+ <div class="text-center">
+  <div class="col-md-8 ">
+    <h3>Reviews</h3>
+    {{#each reviews}}
+      <div class="card" style="width: 100%;">
+        <div class="card-body">
+          {{#if this.external_id}}
+            <h5 class="card-title">{{this.external_id}}</h5>
+          {{else}}
+            <h5 class="card-title">{{this.user_id}}</h5>
+          {{/if}}
+          <h6 class="card-subtitle mb-2 text-muted">{{this.rating}}/10</h6>
+          <p class="card-text">{{this.review_text}}</p>
+        </div>
+      </div>
+      <br>
+    {{/each}}
   </div>
 </div>
