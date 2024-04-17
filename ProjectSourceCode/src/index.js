@@ -67,6 +67,43 @@ app.use(bodyParser.urlencoded({
 
 // AJAX call function
 
+async function addReviews(x) {
+  const fetch = require('node-fetch');
+
+  const url = `https://api.themoviedb.org/3/movie/${x}/reviews?language=en-US&page=1`;
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlNWI0NzEyYzk4OWE4MWZlMTRhZmYzZTdlZGRlYTE1MyIsInN1YiI6IjY2MTQ1ZDEwYTZhNGMxMDE2MmJjZWVmMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.bLYsk7fx4GQ4U4XWkIO0EDxr15I8mQeT9bmw4GH-LnY'
+    }
+  };
+
+  try {
+    await db.tx(async t => { // Start a transaction
+      const res = await fetch(url, options); // Fetch reviews
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch reviews');
+      }
+
+      const json = await res.json();
+
+      // Insert reviews into the database
+      for (const review of json.results) {
+        if (review.content.length < 4900) {
+          await t.none('INSERT INTO external_reviewers (reviewer_id, source) VALUES ($1, $2) ON CONFLICT DO NOTHING', [review.author, 'tmdb']);
+          await t.none('INSERT INTO reviews (movie_id, rating, external_review, avatar_path, external_id, review_text) VALUES ($1, $2, $3, $4, $5, $6)', [x, review.author_details.rating, true, review.author_details.avatar_path, review.author, review.content]);
+        }
+      }
+    });
+
+    console.log('Reviews added successfully');
+  } catch (error) {
+    console.error('Error adding reviews:', error);
+  }
+}
+
 function populateGenreId() {
   const fetch = require('node-fetch');
 
@@ -87,12 +124,11 @@ function populateGenreId() {
     })
 }
 
-function fetchMovieData() {
+function fetchMovieData(x) {
   const fetch = require('node-fetch');
 
-  populateGenreId()
 
-  var url = 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1';
+  var url = `https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=${x}`;
   const options = {
     method: 'GET',
     headers: {
@@ -105,6 +141,8 @@ function fetchMovieData() {
     .then(res => res.json())
     .then(json => {
       for (const tmdbData of json.results) {
+
+      
         // Fetch the videos data for the movie
         const videosUrl = `https://api.themoviedb.org/3/movie/${tmdbData.id}/videos?language=en-US`;
         fetch(videosUrl, options)
@@ -126,6 +164,7 @@ function fetchMovieData() {
               .then(omdbData => {
                 //CHECKS IF MOVIE IS IN OMDB
                 if (omdbData.Title != null) {
+
                   //INSERT MOVIE INTO DB
                   db.any(`INSERT INTO movies (movie_id, image_path, name, year, description,  director, language, metacritic_rating, imdb_rating, tmdb_rating, youtube_link) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
                     [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Director, omdbData.Language, omdbData.Metascore, omdbData.imdbRating, tmdbData.vote_average, youtubeLink]).then(data => {
@@ -134,6 +173,8 @@ function fetchMovieData() {
                         db.any('INSERT INTO movies_to_genres (movie_id, genre_id) VALUES ($1, $2)', [tmdbData.id, genreId]);
                       }
                     })
+              
+                    addReviews(tmdbData.id)
                 }
               })
           });
@@ -170,7 +211,7 @@ app.post('/login', (req, res) => {
             if (match) {
               req.session.user = req.body.username;
               req.session.save();
-              res.status(200).render('pages/home')
+              res.status(200).redirect('/home')
             }
             else {
               res.status(400).render('pages/login', {
@@ -226,13 +267,19 @@ app.get('/forYou', (req, res) => {
 app.get('/profile', async (req, res) => {
   try {
     const username = req.session.user;
-    // fetch the user's profile picture path from the database
+    // Fetch the user's profile picture path from the database
     const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1', [username]);
-    console.log(userData);
-    // pass the user's profile picture path to the rendering engine
+    // Pass the user's profile picture path to the rendering engine
     res.render('pages/profile', {
-      profile_picture: userData ? userData.profile_picture : '/personicon.jpg',
-      username: req.session.user
+      profile_picture: userData ? userData.profile_picture : 'resources/img/icons.jpeg',
+      username: req.session.user,
+      avatarOptions: [
+        { id: 1, path: '/resources/Img/avatar1.jpg' },
+        { id: 2, path: '/resources/Img/avatar2.jpg' },
+        { id: 3, path: '/resources/Img/avatar3.jpg' },
+        { id: 4, path: '/resources/Img/avatar4.jpg' },
+        { id: 5, path: '/resources/Img/avatar5.jpg' }
+      ]
     });
   } catch (error) {
     console.error('Error fetching profile picture:', error);
@@ -256,23 +303,39 @@ Above line would serve all files/folders inside of the 'b' directory
 And make them accessible through http://localhost:3000/a.
 */
 app.use(express.static(__dirname + '/'));
-app.use('/uploads', express.static('uploads'));
+app.use('/resources', express.static('resources'));
 
-app.post('/profile', upload.single('profile-file'), function (req, res, next) {
-  // req.file is the `profile-file` file
-  // req.body will hold the text fields, if there were any
-  const username = req.session.user;
-  const profilePicturePath = req.file.path;
-  db.one('UPDATE users SET profile_picture = $1 WHERE username = $2 returning *', [profilePicturePath, username]);
-  console.log(JSON.stringify(req.file))
-  // var response = '<a href="/">Home</a><br>'
-  // response += "Files uploaded successfully.<br>"
-  // response += `<img src="${req.file.path}" /><br>`
-
-  res.render('pages/profile', {
-    profile_picture: req.file.path,
-  });
-})
+app.post('/profile', async (req, res) => {
+  try {
+    const username = req.session.user;
+    const selectedAvatarId = req.body.avatarId; // Assuming the form sends the selected avatar ID
+    // Fetch the path of the selected avatar based on its ID
+    console.log(selectedAvatarId);
+    const avatarOptions = [
+      { id: 1, path: '/resources/Img/avatar1.jpg' },
+      { id: 2, path: '/resources/Img/avatar2.jpg' },
+      { id: 3, path: '/resources/Img/avatar3.jpg' },
+      { id: 4, path: '/resources/Img/avatar4.jpg' },
+      { id: 5, path: '/resources/Img/avatar5.jpg' }
+    ]
+    const selectedAvatar = avatarOptions.find(avatar => avatar.id === parseInt(selectedAvatarId));
+    console.log(selectedAvatar);
+    console.log(selectedAvatar.path);
+    if (!selectedAvatar) {
+      throw new Error('Invalid avatar ID');
+    }
+    // Update the user's profile with the selected avatar
+    // console.log()
+    await db.none('UPDATE users SET profile_picture = $1 WHERE username = $2', [selectedAvatar.path, username]);
+    res.render('pages/profile', {
+      username: req.session.user,
+      selectedAvatar: selectedAvatar
+    }); 
+  } catch (error) {
+    console.error('Error selecting avatar:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 app.get('/register', (req, res) => {
@@ -291,6 +354,12 @@ app.post('/register', async (req, res) => {
     res.status(400).render('pages/register', {
       error: true,
       message: "Password is too short",
+    });
+  }
+  else if (req.body.password.length > 50 || req.body.username.length > 50) {
+    res.status(400).render('pages/register', {
+      error: true,
+      message: "Username or password too long",
     });
   }
   else {
@@ -328,19 +397,48 @@ app.get('/welcome', (req, res) => {
   res.json({ status: 'success', message: 'Welcome!' });
 });
 
+app.post('/addReview', (req, res) => {
+  const movieID = req.query.movieID
+  const user = req.session.user
+
+  db.any('SELECT * FROM reviews WHERE user_id = $1', [user]).then(data => {
+    if(data.length == 0) {
+      db.one('SELECT profile_picture FROM users WHERE username = $1', [user]).then(data => {
+        db.any('INSERT INTO reviews (movie_id, rating, external_review, avatar_path, user_id, review_text) VALUES ($1, $2, $3, $4, $5, $6)',
+       [movieID, req.body.rating, false, data.profile_picture, user, req.body.review]);
+      })
+    }
+  })
+
+  res.redirect(`/movieDetails?id=${movieID}`)
+})
+
+app.post('/likeMovie', (req, res) => {
+  const movieID = req.query.movieID
+  const user = req.session.user
+
+  db.any('INSERT INTO user_to_movie_liked (user_id, movie_id) VALUES ($1, $2)', [user, movieID])
+
+})
+
 app.get('/movieDetails', (req, res) => {
   const movieId = req.query.id
   db.one('SELECT * FROM movies WHERE movie_id = $1', [movieId]).then(data => {
-    res.render('pages/movieDetails', {
-      name: data.name,
-      image: data.image_path,
-      plot: data.description,
-      director: data.director,
-      metacriticRating: data.metacritic_rating,
-      imdbRating: data.imdb_rating,
-      tmdbRating: data.tmdb_rating,
-      year: data.year,
-      language: data.language
+    db.any('SELECT * FROM reviews WHERE movie_id = $1', [movieId]).then(reviewData => {
+      res.render('pages/movieDetails', {
+        id: movieId,
+        user: req.session.user,
+        name: data.name,
+        image: data.image_path,
+        plot: data.description,
+        director: data.director,
+        metacriticRating: data.metacritic_rating,
+        imdbRating: data.imdb_rating,
+        tmdbRating: data.tmdb_rating,
+        year: data.year,
+        language: data.language,
+        reviews: reviewData
+      })
     })
   })
 
@@ -350,7 +448,10 @@ db.any('SELECT COUNT(*) FROM movies')
   .then(data => {
     const count = data[0].count;
     if (count === '0') {
-      fetchMovieData();
+      populateGenreId()
+      for (let i = 1; i < 2; i++) {
+        fetchMovieData(i);
+      }
     }
   })
 
