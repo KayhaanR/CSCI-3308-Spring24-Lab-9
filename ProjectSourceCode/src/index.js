@@ -449,7 +449,7 @@ db.any('SELECT COUNT(*) FROM movies')
     const count = data[0].count;
     if (count === '0') {
       populateGenreId()
-      for (let i = 1; i < 2; i++) {
+      for (let i = 1; i < 5; i++) {
         fetchMovieData(i);
       }
     }
