@@ -226,13 +226,19 @@ app.get('/forYou', (req, res) => {
 app.get('/profile', async (req, res) => {
   try {
     const username = req.session.user;
-    // fetch the user's profile picture path from the database
+    // Fetch the user's profile picture path from the database
     const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1', [username]);
-    console.log(userData);
-    // pass the user's profile picture path to the rendering engine
+    // Pass the user's profile picture path to the rendering engine
     res.render('pages/profile', {
-      profile_picture: userData ? userData.profile_picture : '/personicon.jpg',
-      username: req.session.user
+      profile_picture: userData ? userData.profile_picture : 'resources/img/icons.jpeg',
+      username: req.session.user,
+      avatarOptions: [
+        { id: 1, path: '/resources/Img/avatar1.jpg' },
+        { id: 2, path: '/resources/Img/avatar2.jpg' },
+        { id: 3, path: '/resources/Img/avatar3.jpg' },
+        { id: 4, path: '/resources/Img/avatar4.jpg' },
+        { id: 5, path: '/resources/Img/avatar5.jpg' }
+      ]
     });
   } catch (error) {
     console.error('Error fetching profile picture:', error);
@@ -256,23 +262,39 @@ Above line would serve all files/folders inside of the 'b' directory
 And make them accessible through http://localhost:3000/a.
 */
 app.use(express.static(__dirname + '/'));
-app.use('/uploads', express.static('uploads'));
+app.use('/resources', express.static('resources'));
 
-app.post('/profile', upload.single('profile-file'), function (req, res, next) {
-  // req.file is the `profile-file` file
-  // req.body will hold the text fields, if there were any
-  const username = req.session.user;
-  const profilePicturePath = req.file.path;
-  db.one('UPDATE users SET profile_picture = $1 WHERE username = $2 returning *', [profilePicturePath, username]);
-  console.log(JSON.stringify(req.file))
-  // var response = '<a href="/">Home</a><br>'
-  // response += "Files uploaded successfully.<br>"
-  // response += `<img src="${req.file.path}" /><br>`
-
-  res.render('pages/profile', {
-    profile_picture: req.file.path,
-  });
-})
+app.post('/profile', async (req, res) => {
+  try {
+    const username = req.session.user;
+    const selectedAvatarId = req.body.avatarId; // Assuming the form sends the selected avatar ID
+    // Fetch the path of the selected avatar based on its ID
+    console.log(selectedAvatarId);
+    const avatarOptions = [
+      { id: 1, path: '/resources/Img/avatar1.jpg' },
+      { id: 2, path: '/resources/Img/avatar2.jpg' },
+      { id: 3, path: '/resources/Img/avatar3.jpg' },
+      { id: 4, path: '/resources/Img/avatar4.jpg' },
+      { id: 5, path: '/resources/Img/avatar5.jpg' }
+    ]
+    const selectedAvatar = avatarOptions.find(avatar => avatar.id === parseInt(selectedAvatarId));
+    console.log(selectedAvatar);
+    console.log(selectedAvatar.path);
+    if (!selectedAvatar) {
+      throw new Error('Invalid avatar ID');
+    }
+    // Update the user's profile with the selected avatar
+    // console.log()
+    await db.none('UPDATE users SET profile_picture = $1 WHERE username = $2', [selectedAvatar.path, username]);
+    res.render('pages/profile', {
+      username: req.session.user,
+      selectedAvatar: selectedAvatar
+    }); 
+  } catch (error) {
+    console.error('Error selecting avatar:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 app.get('/register', (req, res) => {
