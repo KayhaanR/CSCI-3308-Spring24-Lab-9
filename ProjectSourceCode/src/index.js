@@ -259,6 +259,28 @@ app.get('/forYou', (req, res) => {
   res.render('pages/forYou');
 });
 
+app.post('/search', async (req, res) => {
+  console.log(req.body.query)
+  try {
+    const searchQuery = req.body.query;
+    const movies = await db.query('SELECT name, image_path, movie_id FROM movies WHERE name ILIKE $1', [`%${searchQuery}%`]);
+    console.log(movies)
+    res.json(movies);
+  }
+  catch (err) {
+    console.error('Error searching for movie:', err);
+    res.status(500).json({ error: 'An error occurred while searching for movie' });
+  }
+
+});
+
+// Dummy function to simulate search
+function performSearch(query) {
+  // Implement your actual search logic here
+  // For demonstration, just return a subset of data
+
+}
+
 app.get('/profile', async (req, res) => {
   try {
     const username = req.session.user;

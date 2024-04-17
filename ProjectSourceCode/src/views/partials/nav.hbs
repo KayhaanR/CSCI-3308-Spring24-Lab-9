@@ -53,15 +53,53 @@
          </li>
          <li class="nav-item">
              <a class="nav-link" href="/forYou">For You</a>
-         </li>
-         <li class="nav-item">
-           <a class="nav-link" href="/flix">Flix</a>
-         </li>
-       </ul>
-       <div class="d-flex">
-         <input type="text" class="form-control me-2" placeholder="Search">
-         <button class="btn btn-primary" type="submit">Search</button>
-       </div>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/flix">Flix</a>
+        </li>
+        </ul>
+        <div class="d-flex">
+          <form method="POST" action="/search"></form>
+          <input id="searchInput" type="text" class="form-control me-2" placeholder="Search">
+          <button id="searchButton" class="btn btn-primary" type="button">Search</button>
+          </form>
+          <script>
+            document.getElementById('searchButton').addEventListener('click', async () => {
+              const searchInput = document.getElementById('searchInput').value;
+              try {
+                const response = await fetch('/search', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ query: searchInput })
+                });
+                const data = await response.json();
+                displaySearchResults(data);
+              } catch (err) {
+                console.error('Error searching for movies:', err);
+                // Handle error
+              }
+            });
+
+            function displaySearchResults(movies) {
+              const searchResultsDiv = document.getElementById('searchResults');
+              searchResultsDiv.innerHTML = '';
+              movies.forEach(movie => {
+                const movieDiv = document.createElement('div');
+                movieDiv.innerHTML = `
+              <h3>${movie.name}</h3>
+              <a href="/movieDetails?id=${movie.movie_id}">
+              <img src="${movie.image_path}" alt="${movie.name}">
+              </a>
+            `;
+                searchResultsDiv.appendChild(movieDiv);
+              });
+            }
+
+
+          </script>
+        </div>
        <div class="d-flex">
          <ul class="navbar-nav ml-auto align-items-center">
            <li>
@@ -78,4 +116,5 @@
      </div>
    </div>
  </nav>
+ <div id="searchResults"></div>
 </header>
