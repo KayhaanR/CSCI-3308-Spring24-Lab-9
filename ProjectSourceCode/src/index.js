@@ -183,7 +183,13 @@ function fetchMovieData(x) {
     .catch(err => console.error('error:' + err));
 }
 
-
+const avatarOptions = [
+  { id: 1, path: '/resources/img/avatar1.jpg' },
+  { id: 2, path: '/resources/img/avatar2.jpg' },
+  { id: 3, path: '/resources/img/avatar3.jpg' },
+  { id: 4, path: '/resources/img/avatar4.jpg' },
+  { id: 5, path: '/resources/img/avatar5.jpg' }
+]
 
 
 app.get('/', (req, res) => {
@@ -279,29 +285,29 @@ app.post('/search', async (req, res) => {
 
 });
 
-// Dummy function to simulate search
-function performSearch(query) {
-  // Implement your actual search logic here
-  // For demonstration, just return a subset of data
-
-}
-
 app.get('/profile', async (req, res) => {
   try {
     const username = req.session.user;
-    // Fetch the user's profile picture path from the database
-    const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1', [username]);
-    // Pass the user's profile picture path to the rendering engine
+    // fetch the user's profile picture path from the database
+    const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1;', [username]);
+    
+    var avatar_id;
+    for (let i=0 ; i< avatarOptions.length; i++){
+      if (userData.profile_picture == avatarOptions[i].path){
+        avatar_id = avatarOptions[i].id
+      }
+    }
+    
+    // console.log(JSON.stringify(userData));
+    // console.log("This is the userdata: " + userData.profile_picture);
+    // console.log("This is the userdata pfp: " + avatar_id);
+    // userData.profile_picture = req.session.profile_picture;
+    // pass the user's profile picture path
     res.render('pages/profile', {
-      profile_picture: userData ? userData.profile_picture : 'resources/img/icons.jpeg',
+      profile_picture: (userData.profile_picture),
       username: req.session.user,
-      avatarOptions: [
-        { id: 1, path: '/resources/Img/avatar1.jpg' },
-        { id: 2, path: '/resources/Img/avatar2.jpg' },
-        { id: 3, path: '/resources/Img/avatar3.jpg' },
-        { id: 4, path: '/resources/Img/avatar4.jpg' },
-        { id: 5, path: '/resources/Img/avatar5.jpg' }
-      ]
+      selectedAvatar : avatar_id,
+      avatarOptions : avatarOptions
     });
   } catch (error) {
     console.error('Error fetching profile picture:', error);
@@ -319,39 +325,29 @@ var storage = multer.diskStorage({
 })
 var upload = multer({ storage: storage })
 
-/*
-app.use('/a',express.static('/b'));
-Above line would serve all files/folders inside of the 'b' directory
-And make them accessible through http://localhost:3000/a.
-*/
 app.use(express.static(__dirname + '/'));
 app.use('/resources', express.static('resources'));
 
 app.post('/profile', async (req, res) => {
   try {
     const username = req.session.user;
-    const selectedAvatarId = req.body.avatarId; // Assuming the form sends the selected avatar ID
-    // Fetch the path of the selected avatar based on its ID
+    const selectedAvatarId = req.body.avatarId; // assuming the form sends the selected avatar ID
     console.log(selectedAvatarId);
-    const avatarOptions = [
-      { id: 1, path: '/resources/Img/avatar1.jpg' },
-      { id: 2, path: '/resources/Img/avatar2.jpg' },
-      { id: 3, path: '/resources/Img/avatar3.jpg' },
-      { id: 4, path: '/resources/Img/avatar4.jpg' },
-      { id: 5, path: '/resources/Img/avatar5.jpg' }
-    ]
+    
     const selectedAvatar = avatarOptions.find(avatar => avatar.id === parseInt(selectedAvatarId));
     console.log(selectedAvatar);
-    console.log(selectedAvatar.path);
     if (!selectedAvatar) {
       throw new Error('Invalid avatar ID');
     }
-    // Update the user's profile with the selected avatar
-    // console.log()
-    await db.none('UPDATE users SET profile_picture = $1 WHERE username = $2', [selectedAvatar.path, username]);
+    // update the user's profile with the selected avatar
+    const query = await db.one('UPDATE users SET profile_picture = $1 WHERE username = $2 returning *', [selectedAvatar.path, username]);
+    console.log(query);
+    req.session.profile_picture = selectedAvatar.path;
+    const f = req.session.profile_picture;
     res.render('pages/profile', {
       username: req.session.user,
-      selectedAvatar: selectedAvatar
+      selectedAvatar: selectedAvatar,
+      profile_picture: f
     }); 
   } catch (error) {
     console.error('Error selecting avatar:', error);
