@@ -203,7 +203,7 @@ app.post('/login', (req, res) => {
             if (match) {
               req.session.user = req.body.username;
               req.session.save();
-              res.status(200).render('pages/home')
+              res.status(200).redirect('/home')
             }
             else {
               res.status(400).render('pages/login', {
@@ -361,19 +361,48 @@ app.get('/welcome', (req, res) => {
   res.json({ status: 'success', message: 'Welcome!' });
 });
 
+app.post('/addReview', (req, res) => {
+  const movieID = req.query.movieID
+  const user = req.session.user
+
+  db.any('SELECT * FROM reviews WHERE user_id = $1', [user]).then(data => {
+    if(data.length == 0) {
+      db.one('SELECT profile_picture FROM users WHERE username = $1', [user]).then(data => {
+        db.any('INSERT INTO reviews (movie_id, rating, external_review, avatar_path, user_id, review_text) VALUES ($1, $2, $3, $4, $5, $6)',
+       [movieID, req.body.rating, false, data.profile_picture, user, req.body.review]);
+      })
+    }
+  })
+
+  res.redirect(`/movieDetails?id=${movieID}`)
+})
+
+app.post('/likeMovie', (req, res) => {
+  const movieID = req.query.movieID
+  const user = req.session.user
+
+  db.any('INSERT INTO user_to_movie_liked (user_id, movie_id) VALUES ($1, $2)', [user, movieID])
+  
+})
+
 app.get('/movieDetails', (req, res) => {
   const movieId = req.query.id
   db.one('SELECT * FROM movies WHERE movie_id = $1', [movieId]).then(data => {
-    res.render('pages/movieDetails', {
-      name: data.name,
-      image: data.image_path,
-      plot: data.description,
-      director: data.director,
-      metacriticRating: data.metacritic_rating,
-      imdbRating: data.imdb_rating,
-      tmdbRating: data.tmdb_rating,
-      year: data.year,
-      language: data.language
+    db.any('SELECT * FROM reviews WHERE movie_id = $1', [movieId]).then(reviewData => {
+      res.render('pages/movieDetails', {
+        id: movieId,
+        user: req.session.user,
+        name: data.name,
+        image: data.image_path,
+        plot: data.description,
+        director: data.director,
+        metacriticRating: data.metacritic_rating,
+        imdbRating: data.imdb_rating,
+        tmdbRating: data.tmdb_rating,
+        year: data.year,
+        language: data.language,
+        reviews: reviewData
+      })
     })
   })
 
