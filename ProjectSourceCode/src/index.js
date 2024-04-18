@@ -80,16 +80,9 @@ async function addReviews(x) {
   };
 
   try {
-    await db.tx(async t => { // Start a transaction
-      const res = await fetch(url, options); // Fetch reviews
-
-      if (!res.ok) {
-        throw new Error('Failed to fetch reviews');
-      }
-
+    await db.tx(async t => { 
+      const res = await fetch(url, options); 
       const json = await res.json();
-
-      // Insert reviews into the database
       for (const review of json.results) {
         if (review.content.length < 4900) {
           await t.none('INSERT INTO external_reviewers (reviewer_id, source) VALUES ($1, $2) ON CONFLICT DO NOTHING', [review.author, 'tmdb']);
@@ -97,8 +90,6 @@ async function addReviews(x) {
         }
       }
     });
-
-    console.log('Reviews added successfully');
   } catch (error) {
     console.error('Error adding reviews:', error);
   }
@@ -244,7 +235,6 @@ app.get('/home', (req, res) => {
       res.render('pages/home', {
         result: data
       })
-      console.log(data)
     })
 
 });
@@ -265,19 +255,24 @@ app.get('/forYou', (req, res) => {
 });
 
 app.get('/profile', async (req, res) => {
-  try {
-    const username = req.session.user;
-    // fetch the user's profile picture path from the database
-    const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1', [username]);
-    console.log(userData);
-    // pass the user's profile picture path to the rendering engine
-    res.render('pages/profile', {
-      profile_picture: userData ? userData.profile_picture : '/personicon.jpg',
-      username: req.session.user
-    });
-  } catch (error) {
-    console.error('Error fetching profile picture:', error);
-    res.status(500).send('Internal Server Error');
+  if(req.session.user == null) {
+    res.redirect('/login');
+  }
+  else {
+    try {
+      const username = req.session.user;
+      // fetch the user's profile picture path from the database
+      const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1', [username]);
+      console.log(userData);
+      // pass the user's profile picture path to the rendering engine
+      res.render('pages/profile', {
+        profile_picture: userData ? userData.profile_picture : '/personicon.jpg',
+        username: req.session.user
+      });
+    } catch (error) {
+      console.error('Error fetching profile picture:', error);
+      res.status(500).send('Internal Server Error');
+    }
   }
 });
 
