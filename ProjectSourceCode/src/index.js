@@ -88,6 +88,9 @@ function addReviews(x) {
           .then(() => {
             return db.any('INSERT INTO reviews (movie_id, rating, external_review, avatar_path, external_id, review_text) VALUES ($1, $2, $3, $4, $5, $6)', [x, reviews.author_details.rating, true, reviews.author_details.avatar_path, reviews.author, reviews.content ]);
           })
+          .catch(
+            
+          )
           
         }
       }
@@ -326,6 +329,12 @@ app.post('/register', async (req, res) => {
       message: "Password is too short",
     });
   }
+  else if (req.body.password.length > 50 || req.body.username.length > 50) {
+    res.status(400).render('pages/register', {
+      error: true,
+      message: "Username or password too long",
+    });
+  }
   else {
     db.any('SELECT * FROM users WHERE username = $1', [req.body.username])
       .then(async data => {
@@ -382,7 +391,7 @@ app.post('/likeMovie', (req, res) => {
   const user = req.session.user
 
   db.any('INSERT INTO user_to_movie_liked (user_id, movie_id) VALUES ($1, $2)', [user, movieID])
-  
+
 })
 
 app.get('/movieDetails', (req, res) => {
