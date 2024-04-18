@@ -89,7 +89,7 @@ function addReviews(x) {
             return db.any('INSERT INTO reviews (movie_id, rating, external_review, avatar_path, external_id, review_text) VALUES ($1, $2, $3, $4, $5, $6)', [x, reviews.author_details.rating, true, reviews.author_details.avatar_path, reviews.author, reviews.content ]);
           })
           .catch(
-            
+            console.log('whoops')
           )
           
         }
