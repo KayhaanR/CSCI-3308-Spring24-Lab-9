@@ -67,7 +67,7 @@ app.use(bodyParser.urlencoded({
 
 // AJAX call function
 
-function addReviews(x) {
+async function addReviews(x) {
   const fetch = require('node-fetch');
 
   const url = `https://api.themoviedb.org/3/movie/${x}/reviews?language=en-US&page=1`;
@@ -79,24 +79,29 @@ function addReviews(x) {
     }
   };
 
-  fetch(url, options)
-    .then(res => res.json())
-    .then(json => {
-      for(const reviews of json.results) {
-        if(reviews.content.length < 4900) { 
-          db.any('INSERT INTO external_reviewers(reviewer_id, source) SELECT $1, $2 WHERE NOT EXISTS (SELECT 1 FROM external_reviewers WHERE reviewer_id = $1)', [reviews.author, "tmdb"])
-          .then(() => {
-            return db.any('INSERT INTO reviews (movie_id, rating, external_review, avatar_path, external_id, review_text) VALUES ($1, $2, $3, $4, $5, $6)', [x, reviews.author_details.rating, true, reviews.author_details.avatar_path, reviews.author, reviews.content ]);
-          })
-          .catch(
-            console.log('whoops')
-          )
-          
+  try {
+    await db.tx(async t => { // Start a transaction
+      const res = await fetch(url, options); // Fetch reviews
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch reviews');
+      }
+
+      const json = await res.json();
+
+      // Insert reviews into the database
+      for (const review of json.results) {
+        if (review.content.length < 4900) {
+          await t.none('INSERT INTO external_reviewers (reviewer_id, source) VALUES ($1, $2) ON CONFLICT DO NOTHING', [review.author, 'tmdb']);
+          await t.none('INSERT INTO reviews (movie_id, rating, external_review, avatar_path, external_id, review_text) VALUES ($1, $2, $3, $4, $5, $6)', [x, review.author_details.rating, true, review.author_details.avatar_path, review.author, review.content]);
         }
       }
-      
-    })
-    .catch(err => console.error('error:' + err));
+    });
+
+    console.log('Reviews added successfully');
+  } catch (error) {
+    console.error('Error adding reviews:', error);
+  }
 }
 
 function populateGenreId() {
