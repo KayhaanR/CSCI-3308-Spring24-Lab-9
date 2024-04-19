@@ -32,7 +32,7 @@ CREATE TABLE movies (
     -- Normalize ratings before calculating total rating. --
     metacritic_rating VARCHAR(5),
     imdb_rating VARCHAR(5),
-    tmdb_rating INTEGER,
+    tmdb_rating NUMERIC(3, 0),
     -- After other ratings filled, calculate our rating. --
     our_rating NUMERIC(3, 1),
 

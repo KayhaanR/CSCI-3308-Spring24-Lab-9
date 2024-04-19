@@ -10,7 +10,8 @@ const bcrypt = require('bcrypt');
 const axios = require('axios');
 const multer = require('multer');
 const fs = require('fs');
-
+const db = require('./resources/js/db.js');
+const {predictionRouter, recommendMovies} = require('./resources/js/predictionModel/predictScript.js');
 
 const apiKey = '61bad045';
 
@@ -19,29 +20,6 @@ const hbs = handlebars.create({
   layoutsDir: __dirname + '/views/layouts',
   partialsDir: __dirname + '/views/partials',
 });
-
-
-const dbConfig = {
-  host: 'db',
-  port: 5432,
-  database: process.env.POSTGRES_DB,
-  user: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD,
-};
-
-const db = pgp(dbConfig);
-
-// app.use(express.static(path.join(__dirname, "/resources")));
-// app.use('/uploads',express.static('uploads'))
-
-db.connect()
-  .then(obj => {
-    console.log('Database connection successful');
-    obj.done();
-  })
-  .catch(error => {
-    console.log('ERROR:', error.message || error);
-  });
 
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
@@ -256,8 +234,42 @@ app.get('/flix', (req, res) => {
     })
 });
 
-app.get('/forYou', (req, res) => {
-  res.render('pages/forYou');
+app.get('/forYou', async (req, res) => {
+  const username = req.session.user;
+  if (!username) {
+    res.redirect('/login');
+    return;
+  }
+
+  try {
+    const recommendations = await recommendMovies(username, 20);
+    if (recommendations.length === 0) {
+      if (recommendations.message === 'No liked movies found for this user to base recommendations on.') {
+        res.render('pages/forYou', { recommendations: [], message: "Please like some movies so we can recommend you similar movies." });
+      } else {
+        res.render('pages/forYou', { recommendations: [], message: "No recommendations available. Please like more movies to improve recommendations." });
+      }
+    } else {
+      const movieIDs = recommendations.map(rec => rec.movie_id);
+      const movieDetails = await db.any(`
+        SELECT m.movie_id, m.image_path, m.name, m.description, m.year, m.director, m.language, m.metacritic_rating, m.imdb_rating, m.tmdb_rating, m.our_rating, m.youtube_link
+        FROM movies m
+        WHERE m.movie_id = ANY($1)`, [movieIDs]);
+
+      const enrichedRecommendations = movieDetails.map(movie => {
+        const recommendation = recommendations.find(rec => rec.movie_id === movie.movie_id);
+        return {
+          ...movie,
+          score: (recommendation.score).toFixed(0)
+        };
+      });
+
+      res.render('pages/forYou', { recommendations: enrichedRecommendations });
+    }
+  } catch (error) {
+    console.error('Failed to fetch recommendations:', error);
+    res.render('pages/forYou', { recommendations: [], message: 'Error loading recommendations. Please try again later.' });
+  }
 });
 
 app.post('/search', async (req, res) => {
@@ -322,6 +334,7 @@ var upload = multer({ storage: storage })
 
 app.use(express.static(__dirname + '/'));
 app.use('/resources', express.static('resources'));
+app.use(predictionRouter);
 
 app.post('/profile', async (req, res) => {
   try {
