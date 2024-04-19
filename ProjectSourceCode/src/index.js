@@ -255,24 +255,25 @@ app.get('/forYou', (req, res) => {
 });
 
 app.get('/profile', async (req, res) => {
-  if(req.session.user == null) {
-    res.redirect('/login');
-  }
-  else {
-    try {
-      const username = req.session.user;
-      // fetch the user's profile picture path from the database
-      const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1', [username]);
-      console.log(userData);
-      // pass the user's profile picture path to the rendering engine
-      res.render('pages/profile', {
-        profile_picture: userData ? userData.profile_picture : '/personicon.jpg',
-        username: req.session.user
-      });
-    } catch (error) {
-      console.error('Error fetching profile picture:', error);
-      res.status(500).send('Internal Server Error');
-    }
+  try {
+    const username = req.session.user;
+    // Fetch the user's profile picture path from the database
+    const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1', [username]);
+    // Pass the user's profile picture path to the rendering engine
+    res.render('pages/profile', {
+      profile_picture: userData ? userData.profile_picture : 'resources/img/icons.jpeg',
+      username: req.session.user,
+      avatarOptions: [
+        { id: 1, path: '/resources/Img/avatar1.jpg' },
+        { id: 2, path: '/resources/Img/avatar2.jpg' },
+        { id: 3, path: '/resources/Img/avatar3.jpg' },
+        { id: 4, path: '/resources/Img/avatar4.jpg' },
+        { id: 5, path: '/resources/Img/avatar5.jpg' }
+      ]
+    });
+  } catch (error) {
+    console.error('Error fetching profile picture:', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 
@@ -292,23 +293,39 @@ Above line would serve all files/folders inside of the 'b' directory
 And make them accessible through http://localhost:3000/a.
 */
 app.use(express.static(__dirname + '/'));
-app.use('/uploads', express.static('uploads'));
+app.use('/resources', express.static('resources'));
 
-app.post('/profile', upload.single('profile-file'), function (req, res, next) {
-  // req.file is the `profile-file` file
-  // req.body will hold the text fields, if there were any
-  const username = req.session.user;
-  const profilePicturePath = req.file.path;
-  db.one('UPDATE users SET profile_picture = $1 WHERE username = $2 returning *', [profilePicturePath, username]);
-  console.log(JSON.stringify(req.file))
-  // var response = '<a href="/">Home</a><br>'
-  // response += "Files uploaded successfully.<br>"
-  // response += `<img src="${req.file.path}" /><br>`
-
-  res.render('pages/profile', {
-    profile_picture: req.file.path,
-  });
-})
+app.post('/profile', async (req, res) => {
+  try {
+    const username = req.session.user;
+    const selectedAvatarId = req.body.avatarId; // Assuming the form sends the selected avatar ID
+    // Fetch the path of the selected avatar based on its ID
+    console.log(selectedAvatarId);
+    const avatarOptions = [
+      { id: 1, path: '/resources/img/avatar1.jpg' },
+      { id: 2, path: '/resources/img/avatar2.jpg' },
+      { id: 3, path: '/resources/img/avatar3.jpg' },
+      { id: 4, path: '/resources/img/avatar4.jpg' },
+      { id: 5, path: '/resources/img/avatar5.jpg' }
+    ]
+    const selectedAvatar = avatarOptions.find(avatar => avatar.id === parseInt(selectedAvatarId));
+    console.log(selectedAvatar);
+    console.log(selectedAvatar.path);
+    if (!selectedAvatar) {
+      throw new Error('Invalid avatar ID');
+    }
+    // Update the user's profile with the selected avatar
+    // console.log()
+    await db.none('UPDATE users SET profile_picture = $1 WHERE username = $2', [selectedAvatar.path, username]);
+    res.render('pages/profile', {
+      username: req.session.user,
+      selectedAvatar: selectedAvatar
+    }); 
+  } catch (error) {
+    console.error('Error selecting avatar:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 app.get('/register', (req, res) => {
@@ -390,32 +407,73 @@ app.post('/likeMovie', (req, res) => {
   const movieID = req.query.movieID
   const user = req.session.user
 
-  db.any('INSERT INTO user_to_movie_liked (user_id, movie_id) VALUES ($1, $2)', [user, movieID])
-
+  db.any('SELECT * FROM user_to_movie_liked WHERE user_id = $1 AND movie_id = $2', [user, movieID]).then(data => {
+    if(data.length == 0) {
+      db.any('INSERT INTO user_to_movie_liked (user_id, movie_id) VALUES ($1, $2)', [user, movieID])
+    }
+    else {
+      db.any('DELETE FROM user_to_movie_liked WHERE user_id = $1 AND movie_id = $2', [user, movieID])
+    }
+  })
+  res.redirect(`/movieDetails?id=${movieID}`)
 })
 
 app.get('/movieDetails', (req, res) => {
-  const movieId = req.query.id
+  const movieId = req.query.id;
   db.one('SELECT * FROM movies WHERE movie_id = $1', [movieId]).then(data => {
     db.any('SELECT * FROM reviews WHERE movie_id = $1', [movieId]).then(reviewData => {
-      res.render('pages/movieDetails', {
-        id: movieId,
-        user: req.session.user,
-        name: data.name,
-        image: data.image_path,
-        plot: data.description,
-        director: data.director,
-        metacriticRating: data.metacritic_rating,
-        imdbRating: data.imdb_rating,
-        tmdbRating: data.tmdb_rating,
-        year: data.year,
-        language: data.language,
-        reviews: reviewData
-      })
-    })
-  })
+      let isLiked = false; 
+      if(req.session.user != null) {
+        db.any('SELECT * FROM user_to_movie_liked WHERE user_id = $1 AND movie_id = $2', [req.session.user, movieId]).then(likedData => {
+          if(likedData.length != 0) {
+            isLiked = true;
+          }
+          res.render('pages/movieDetails', {
+            id: movieId,
+            user: req.session.user,
+            name: data.name,
+            image: data.image_path,
+            plot: data.description,
+            director: data.director,
+            metacriticRating: data.metacritic_rating,
+            imdbRating: data.imdb_rating,
+            tmdbRating: data.tmdb_rating,
+            year: data.year,
+            language: data.language,
+            reviews: reviewData,
+            liked: isLiked
+          });
+        }).catch(error => {
+          console.error('Error retrieving liked data:', error);
+          res.status(500).send('Internal Server Error');
+        });
+      } else {
+        res.render('pages/movieDetails', {
+          id: movieId,
+          user: null,
+          name: data.name,
+          image: data.image_path,
+          plot: data.description,
+          director: data.director,
+          metacriticRating: data.metacritic_rating,
+          imdbRating: data.imdb_rating,
+          tmdbRating: data.tmdb_rating,
+          year: data.year,
+          language: data.language,
+          reviews: reviewData,
+          liked: isLiked
+        });
+      }
+    }).catch(error => {
+      console.error('Error retrieving reviews:', error);
+      res.status(500).send('Internal Server Error');
+    });
+  }).catch(error => {
+    console.error('Error retrieving movie data:', error);
+    res.status(500).send('Internal Server Error');
+  });
+});
 
-})
 
 db.any('SELECT COUNT(*) FROM movies')
   .then(data => {

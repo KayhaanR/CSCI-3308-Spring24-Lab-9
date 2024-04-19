@@ -22,7 +22,6 @@
 </style>
 
 {{>message}}
-
 <div class="container">
   <div class="row">
 
@@ -48,7 +47,13 @@
                 {{#if user}}
                   <div>
                     <form method="POST" action="/likeMovie?movieID={{id}}">
-                      <button type="submit" class="btn btn-primary">Like</button>
+                      <button type="submit" class="btn btn-primary">
+                      {{#if liked}}
+                        Unlike
+                      {{else}}
+                        Like
+                      {{/if}}
+                      </button>
                     </form>
                   </div>
                 {{else}}

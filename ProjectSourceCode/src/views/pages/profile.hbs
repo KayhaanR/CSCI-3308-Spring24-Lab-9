@@ -3,6 +3,8 @@
                 text-align:center;
                 height:45%;
                 display:flex;
+                position: fixed;
+                bottom: 0;
             }
             .saved-movies{
                 display: inline-block; 
@@ -56,11 +58,25 @@
             <div class="profile-row">
                 <div class="profile-picture"> 
                     <p id="user-name">Hello, {{username}} </p>                  
-                    <form action="/profile" method="POST" enctype="multipart/form-data" id="form-field"> 
-                        <input type="file" name="profile-file"/> 
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form> 
-                    <img src="{{profile_picture}}" alt="Profile Picture" class="profile-image">
+                    <form action="/profile" method="POST">
+            <!-- Check if selectedAvatar exists -->
+            {{#if selectedAvatar}}
+                <!-- If selectedAvatar exists, display it -->
+                <img src="{{profile_picture}}" alt="Selected Avatar">
+                <!-- Include hidden input to send selected avatar ID to the server -->
+                <input type="hidden" name="avatarId" value="{{selectedAvatar.id}}">
+            {{else}}
+                <!-- If selectedAvatar does not exist, display avatar options -->
+                {{#each avatarOptions}}
+                    <label>
+                        <input type="radio" name="avatarId" value="{{this.id}}">
+                        <img src="{{this.path}}" alt="Avatar {{this.id}}">
+                    </label>
+                {{/each}}
+                <!-- Submit button to select avatar -->
+                <button type="submit">Select Avatar</button>
+            {{/if}}
+        </form>
                 </div> 
                            
             </div>
