@@ -276,32 +276,37 @@ app.post('/search', async (req, res) => {
 });
 
 app.get('/profile', async (req, res) => {
-  try {
-    const username = req.session.user;
-    // fetch the user's profile picture path from the database
-    const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1;', [username]);
-    
-    var avatar_id;
-    for (let i=0 ; i< avatarOptions.length; i++){
-      if (userData.profile_picture == avatarOptions[i].path){
-        avatar_id = avatarOptions[i].id
+  if(req.session.user == null) {
+    res.redirect('/login')
+  }
+  else {
+    try {
+      const username = req.session.user;
+      // fetch the user's profile picture path from the database
+      const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1;', [username]);
+      
+      var avatar_id;
+      for (let i=0 ; i< avatarOptions.length; i++){
+        if (userData.profile_picture == avatarOptions[i].path){
+          avatar_id = avatarOptions[i].id
+        }
       }
+      
+      // console.log(JSON.stringify(userData));
+      // console.log("This is the userdata: " + userData.profile_picture);
+      // console.log("This is the userdata pfp: " + avatar_id);
+      // userData.profile_picture = req.session.profile_picture;
+      // pass the user's profile picture path
+      res.render('pages/profile', {
+        profile_picture: (userData.profile_picture),
+        username: req.session.user,
+        selectedAvatar : avatar_id,
+        avatarOptions : avatarOptions
+      });
+    } catch (error) {
+      console.error('Error fetching profile picture:', error);
+      res.status(500).send('Internal Server Error');
     }
-    
-    // console.log(JSON.stringify(userData));
-    // console.log("This is the userdata: " + userData.profile_picture);
-    // console.log("This is the userdata pfp: " + avatar_id);
-    // userData.profile_picture = req.session.profile_picture;
-    // pass the user's profile picture path
-    res.render('pages/profile', {
-      profile_picture: (userData.profile_picture),
-      username: req.session.user,
-      selectedAvatar : avatar_id,
-      avatarOptions : avatarOptions
-    });
-  } catch (error) {
-    console.error('Error fetching profile picture:', error);
-    res.status(500).send('Internal Server Error');
   }
 });
 

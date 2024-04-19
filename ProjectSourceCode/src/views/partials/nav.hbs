@@ -1,7 +1,6 @@
 <style>
         .navbar {
-            background-color: #343a40; 
-            color: #ffffff;
+            background-color: #000000; 
         }
 
         .navbar-nav .nav-link {
@@ -16,9 +15,10 @@
             width: 200px; 
         }
         
-        .btn-primary {
-            background-color: #ff0000; 
-            border-color: #ff0000; 
+        #searchButton {
+            background-color: rgb(255, 0, 0); 
+            border-color: rgb(255, 0, 0); 
+            border-radius: 0;
         }
 
         .btn-primary:hover {
@@ -30,9 +30,10 @@
             height: 30px; 
             border-radius: 50%; 
         }
+
+        
         
     </style>
-
 <header>
  <nav class="navbar navbar-expand-sm border-bottom">
    <div class="container-nav">
@@ -49,6 +50,9 @@
      <div class="collapse navbar-collapse" id="navbar-collapse">
        <ul class="navbar-nav me-auto">
          <li class="nav-item">
+               <a class="nav-link" href="/home"><h5>MOVIEMASTER</h5></a>
+         </li>
+         <li class="nav-item">
                <a class="nav-link" href="/home">Home</a>
          </li>
          <li class="nav-item">
@@ -62,8 +66,28 @@
           <form method="POST" action="/search"></form>
           <input id="searchInput" type="text" class="form-control me-2" placeholder="Search">
           <button id="searchButton" class="btn btn-primary" type="button">Search</button>
-          </form>
-          <script>
+          </form>  
+         <ul class="navbar-nav ml-auto align-items-center">
+           <li>
+              <a class="nav-link" href="/profile">You</a>
+           </li>
+           <li class = "nav-item">
+             <a class="navbar-brand" href="/profile">
+              <img src="../../resources/img/icons.jpeg" width="30" height="30" alt="">
+            </a>
+           </li>
+           <li class = "nav-item">
+            <a class="nav-link" href="/logout">Logout</a>
+           </li>
+         </ul>
+       </div>
+     </div>
+   </div>
+ </nav>
+ <div id="searchResults"></div>
+</header>
+
+<script>
             document.getElementById('searchButton').addEventListener('click', async () => {
               const searchInput = document.getElementById('searchInput').value;
               try {
@@ -96,25 +120,4 @@
                 searchResultsDiv.appendChild(movieDiv);
               });
             }
-
-
-          </script>
-        </div>
-       <div class="d-flex">
-         <ul class="navbar-nav ml-auto align-items-center">
-           <li>
-              <a class="nav-link" href="/profile">You</a>
-           </li>
-           <li>
-            
-             <a class="navbar-brand" href="/profile">
-              <img src="../../resources/img/icons.jpeg" width="30" height="30" alt="">
-            </a>
-           </li>
-         </ul>
-       </div>
-     </div>
-   </div>
- </nav>
- <div id="searchResults"></div>
-</header>
+</script>
