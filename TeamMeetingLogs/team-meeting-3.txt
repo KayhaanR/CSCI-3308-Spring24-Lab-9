@@ -1,0 +1,9 @@
+Team Meeting 4-17
+
+UI on all pages should be improved upon
+Home page additions coming soon with a featured movie section
+Flix going through final stages before being finished
+Javascript model for the 'For You' page complete and functional, note: need to pull more movies for increased accuracy
+Profile page complete with avatars and able to track user's liked movies
+APIs fully functional and operational
+From here on, just working on finishing touches and last commits before we present
