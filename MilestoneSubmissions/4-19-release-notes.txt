@@ -1,0 +1,11 @@
+Release Notes for 4-12-24:
+    * Aiden: implemented movie data to show for each trailer in flix, also looks prettier now
+        - implement before Monday: like feature for flix
+    * William: implemented review and like features
+        - users can add reviews and like movies and reviews show in movieDetails
+    * Sopan and Sameer: implemented search bar function, results display on top of current page 
+    * Kayhaan: created and working on presentation for 4-24
+    * Sameer: implemented avatar feature for user page
+        - to implement: user liked and reviews on user page
+    * Nicholas: implemented recommendation feature and For You page
+        - based on user's liked movies, displays 20 recommended movies and their 'percentage of recommendation'
