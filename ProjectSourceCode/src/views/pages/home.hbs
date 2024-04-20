@@ -74,8 +74,11 @@
     <div class="scroll-holder">
       <div class="scroll-tray">
         <div>
-          {{#each image}}
+          {{#each result}}
+          <a href="/movieDetails?id={{this.movie_id}}">
+          
           <img src="{{this.image_path}}" alt="Gallery Image" />
+          </a>
           {{/each}}
         </div>
 

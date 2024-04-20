@@ -1,5 +1,3 @@
-
-
 <style>
     .header {
         text-align: center;
@@ -19,34 +17,44 @@
         width: 80%;
         height: 80%;
         border: none;
+        display: block;
+        margin: 0 auto;
     }
 </style>
 
 <div class="header">
-    Grab your popcorn, and enjoy a stream of *mostly* uninterrupted trailers!
+    Grab your popcorn, and enjoy a stream of uninterrupted trailers!
 </div>
-<iframe style="display: block; margin: 0 auto;" id="playlist-player" src="" allowfullscreen></iframe>
-<div style="color:aqua; margin: 0 auto">
-    *To implement: either pull movie titles from videos and then from OMDB database in order to implement "Add" or figure out YT API and pull everything from there*
-</div>
+<iframe id="playlist-player" src="" allowfullscreen></iframe>
+<button id="change-trailer">Change Trailer</button>
 
 <script>
-        const videoIds = [
-        "CYYtLXfquy0",
-        "LdOM0x0XDMo",
-        "rBxcF-r9Ibs",
-        "gBLWpKbC3ww",
-        "28dHbIR_NB4",
-        "tyKyboTBsU4",
-        "V6wWKNij_1M",
-        "VH39NQapCfQ",
-        "d2sJNee7FQ4",
-        "vn9mMeWcgoM",
-    ];
+    // Parse the 'flix_data' JSON string to an array of objects
+    const flixData = JSON.parse('{{{flix_data}}}');  // Use triple braces to insert the 'flix_data' JSON string
 
-    const randomVideoId = videoIds[Math.floor(Math.random() * videoIds.length)];
+    // Function to change the trailer being displayed
+    // Function to change the trailer being displayed
+function changeTrailer() {
+    // Randomly select a video from 'flixData'
+    const randomVideo = flixData[Math.floor(Math.random() * flixData.length)];
 
-    const playlistId = "PLPKaZQAWre5aECAN-X5-iiHoWxu3c1Q6_";
-    const iframe = document.getElementById('playlist-player');
-    iframe.src = `https://www.youtube.com/embed/${randomVideoId}?list=${playlistId}`;
+    // Check if the YouTube link is not empty
+    if (randomVideo.youtube_link != '') {
+        // Set the 'src' attribute of the iframe to the selected video's YouTube link
+        const iframe = document.getElementById('playlist-player');
+        iframe.src = randomVideo.youtube_link;
+    } else {
+        // If the YouTube link is empty, handle the situation (e.g., show an error message)
+        console.error('No trailer available for this movie.');
+        changeTrailer();
+        // You can also choose to try another trailer or take another action here
+    }
+}
+    // Change the trailer when the page loads
+    changeTrailer();
+
+    // Add an event listener to the "Change Trailer" button
+    document.getElementById('change-trailer').addEventListener('click', changeTrailer);
 </script>
+
+

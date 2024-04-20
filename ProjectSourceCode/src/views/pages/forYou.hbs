@@ -1,1 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommended Movies</title>
+    <style>
+        body {
+            background-color: #222;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
 
+        .movie-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .movie-card {
+            width: 200px;
+            margin: 10px;
+            background: #333;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .movie-card img {
+            width: 100%;
+            display: block;
+        }
+
+        .movie-info {
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .movie-info h3 {
+            font-size: 16px;
+            margin: 5px 0;
+            text-decoration: none;
+        }
+
+        .movie-info p {
+            text-decoration: none;
+            color: #ffcc00;
+        }
+
+        .movie-info a {
+            text-decoration: none;
+            color: #ffcc00;
+        }
+
+        .no-recommendations {
+            color: #ffcc00;
+            text-align: center;
+            margin-top: 50px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <h1 style="text-align: center;">Movies Recommended For You</h1>
+    {{#if recommendations.length}}
+        <div class="movie-container">
+            {{#each recommendations}}
+                <div class="movie-card">
+                    <a href="/movieDetails?id={{this.movie_id}}">
+                    <img src="{{this.image_path}}" alt="{{this.name}}" />
+                    <div class="movie-info">
+                        <h3>{{this.name}}</h3>
+                        <p>{{this.score}}%</p>
+                    </div>
+                    </a>
+                </div>
+            {{/each}}
+        </div>
+    {{else}}
+        <p class="no-recommendations">You haven't liked any movies yet.
+            Grab a beer, like some movies, and then we can recommend you some similar movies.</p>
+    {{/if}}
+</main>
+</body>
+</html>

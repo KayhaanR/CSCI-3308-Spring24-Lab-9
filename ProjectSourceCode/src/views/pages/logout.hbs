@@ -1,10 +1,29 @@
+<style>
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 110vh;
+  }
+
+  .card {
+    border-radius: 0;
+  }
+
+  .btn {
+    border-color: black;
+    border-radius: 0;
+    background-color: black;
+  }
+</style>
+
 {{> message}}
 
 <div class="container" style="position: relative;"> <!-- Inlined because external stylesheet is not working for some reason  -->
   <div class="card shadow-lg">
     <div class="card-body">
       <div class="card-title"><h5>Logged Out</h5></div>
-      <a href="/register">Login</a>
+      <a href="/login">Login</a>
     </div>
   </div>
 </div>

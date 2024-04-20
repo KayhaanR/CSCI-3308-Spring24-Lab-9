@@ -1,36 +1,48 @@
 <style>
-        .navbar {
-            background-color: #343a40; 
-            color: #ffffff;
-        }
+  .navbar {
+    background-color: #000000;
+  }
 
-        .navbar-nav .nav-link {
-            color: #ffffff; 
-        }
+  .navbar-nav .nav-link {
+    color: #ffffff;
+  }
 
-        .navbar-nav .nav-link:hover {
-            color: #adb5bd;
-        }
-        .form-control {
-            width: 200px; 
-        }
+  .navbar-nav .nav-link:hover {
+    color: #adb5bd;
+  }
 
-        .btn-primary {
-            background-color: #ff0000; 
-            border-color: #ff0000; 
-        }
+  .form-control {
+    width: 200px;
+  }
 
-        .btn-primary:hover {
-            background-color: #0056b3; 
-            border-color: #0056b3; 
-        }
-        .user-icon {
-            width: 30px; 
-            height: 30px; 
-            border-radius: 50%; 
-        }
+  #searchButton {
+    background-color: rgb(255, 0, 0);
+    border-color: rgb(255, 0, 0);
+    border-radius: 0;
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+
+  .user-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+  }
+
+  #searchResults {
+    display: flex;
+    flex-wrap: wrap;
+    /* Allow items to wrap to the next line */
+    justify-content: space-between;
+    /* Distribute space between items */
+    color: white;
+  }
+        
+        
     </style>
-
 <header>
  <nav class="navbar navbar-expand-sm border-bottom">
    <div class="container-nav">
@@ -47,32 +59,80 @@
      <div class="collapse navbar-collapse" id="navbar-collapse">
        <ul class="navbar-nav me-auto">
          <li class="nav-item">
+               <a class="nav-link" href="/home"><h5>MOVIEMASTER</h5></a>
+         </li>
+         <li class="nav-item">
                <a class="nav-link" href="/home">Home</a>
          </li>
          <li class="nav-item">
              <a class="nav-link" href="/forYou">For You</a>
-         </li>
-         <li class="nav-item">
-           <a class="nav-link" href="/flix">Flix</a>
-         </li>
-       </ul>
-       <div class="d-flex">
-         <input type="text" class="form-control me-2" placeholder="Search">
-         <button class="btn btn-primary" type="submit">Search</button>
-       </div>
-       <div class="d-flex">
-         <ul class="navbar-nav me-auto">
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/flix">Flix</a>
+        </li>
+        </ul>
+        <div class="d-flex">
+          <form method="POST" action="/search"></form>
+          <input id="searchInput" type="text" class="form-control me-2" placeholder="Search">
+          <button id="searchButton" class="btn btn-primary" type="button">Search</button>
+          </form>  
+         <ul class="navbar-nav ml-auto align-items-center">
            <li>
               <a class="nav-link" href="/profile">You</a>
            </li>
-           <li>
-             <a class="nav-link" href="/profile">
-             <img src="icons.jpeg" width="5">
-             </a>
+           <li class = "nav-item">
+             <a class="navbar-brand" href="/profile">
+              <img src="../../resources/img/icons.jpeg" width="30" height="30" alt="">
+            </a>
+           </li>
+           <li class = "nav-item">
+            <a class="nav-link" href="/logout">Logout</a>
            </li>
          </ul>
        </div>
      </div>
    </div>
  </nav>
+ <div id="searchResults"></div>
 </header>
+
+<script>
+            document.getElementById('searchButton').addEventListener('click', async () => {
+              const searchInput = document.getElementById('searchInput').value;
+              try {
+                const response = await fetch('/search', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ query: searchInput })
+                });
+                const data = await response.json();
+                displaySearchResults(data);
+              } catch (err) {
+                console.error('Error searching for movies:', err);
+                // Handle error
+              }
+            });
+
+            function displaySearchResults(movies) {
+              const searchResultsDiv = document.getElementById('searchResults');
+              searchResultsDiv.innerHTML = '';
+              
+              movies.forEach(movie => {
+                const movieDiv = document.createElement('div');
+                movieDiv.innerHTML = `
+              <h3>${movie.name}</h3>
+              <a href="/movieDetails?id=${movie.movie_id}">
+              <img src="${movie.image_path}" alt="${movie.name}">
+              </a>
+            `;
+                searchResultsDiv.appendChild(movieDiv);
+              });
+              document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                searchResultsDiv.innerHTML = ''; // Clear search results
+            }
+        });
+            }
+</script>
