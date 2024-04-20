@@ -1,0 +1,11 @@
+Team Meeting 4-10
+
+Home page displays top rated movies
+    - to implement: click thumbnail to show movie info
+Will now be using TMDB for trailers and reviews
+Flix page will use TMDB to display YouTube trailers with a "change trailer" button, randomizing the trailer
+Profile page functionally complete
+To implement:
+    - getting reviews from api
+    - user reviews
+    - my list - saved movies by user

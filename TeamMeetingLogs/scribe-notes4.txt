@@ -1,0 +1,17 @@
+Scribe Notes 4/15/2024
+
+Home page has linkability to movie pages.
+Profile Pictures work.
+Logout/Login is functional.
+Flix page is functional.
+
+TODO:
+Implement Search Feature.
+Implement Like Feature.
+Finish pulling reviews to DB.
+Display reviews on movie page.
+Complete For You page
+
+Complete Presentation slides by Apr 24th.
+
+Complete Test Cases and Project Report by Apr 29th.

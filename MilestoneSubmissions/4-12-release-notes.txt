@@ -1,0 +1,12 @@
+Release Notes for 4-12-24:
+    * Aiden: implemented trailers into flix.hbs from TMDB with change trailer button, displays trailers for top rated movies at the moment.
+        - now getting video links from TMDB rather than Youtube API
+    * William: Generated Movie Details page from TMDB data
+        - Includes plot, image, genre, rating etc.
+    * Sopan and Kayhaan: Updated Home Page to display carousel of movies pulled from TMDB
+        - Removed fixed list of movies and replaced with dynamic display of current 20 movies in the db
+        - Will try to make a double-stacked scroll carousel for aesthetic purposes
+    * Sameer: Implemented profile page for the users
+        - includes profile pic, username
+        - inclusion of Liked Movies to be implemented
+    * Nicholas: Merged DB branches
