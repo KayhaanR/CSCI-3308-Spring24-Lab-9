@@ -7,54 +7,115 @@
         font-family: Arial, Helvetica, sans-serif;
         font-size: 36px;
         letter-spacing: 2px;
+        margin-bottom: 0; /* Removed margin-bottom to remove spacing between header and button */
     }
 
     body {
         background-color: #000000;
+        overflow-y: auto; /* Add scroll when content overflows vertically */
     }
 
-    #playlist-player {
-        width: 80%;
-        height: 80%;
+    #movie-trailer {
+        width: 70%; /* Adjust as needed */
+        height: 70%; /* Adjust as needed */
         border: none;
         display: block;
         margin: 0 auto;
+    }
+
+    #change-trailer {
+        display: block;
+        margin: 0 auto; /* Removed margin-bottom to remove spacing between header and button */
+        padding: 10px 20px;
+        background-color: #ffffff;
+        color: #000000;
+        border: 2px solid #ffffff;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    #change-trailer:hover {
+        background-color: #000000;
+        color: #ffffff;
+    }
+
+    #movie-info {
+        margin-top: 0; /* Removed margin-top to remove spacing between trailer and movie info */
+        background-color: #000000;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        font-family: Arial, Helvetica, sans-serif;
+        color: #ffffff;
+        text-align: center;
+    }
+
+    .movie-title-container {
+        display: inline-block; /* Ensure the container wraps around the title */
+        border: 2px solid #ffffff; /* Add a white border */
+        padding: 5px 10px; /* Add padding to the container */
+    }
+
+    #movie-name {
+        font-size: 32px; /* Adjust font size as needed */
+        font-family: 'Arial Black', sans-serif; /* Use a bold font */
+        margin: 0; /* Remove margin to avoid extra space */
+    }
+
+    #movie-info p {
+        margin: 5px 0;
+    }
+
+    #movie-info p span {
+        font-weight: bold;
     }
 </style>
 
 <div class="header">
     Grab your popcorn, and enjoy a stream of uninterrupted trailers!
 </div>
-<iframe id="playlist-player" src="" allowfullscreen></iframe>
+
 <button id="change-trailer">Change Trailer</button>
+
+<iframe id="movie-trailer" src="" allowfullscreen></iframe>
+
+<div id="movie-info">
+    <div class="movie-title-container"><h2 id="movie-name"></h2></div>
+    <p><span>Description:</span> <span id="movie-description"></span></p>
+    <p><span>Year:</span> <span id="movie-year"></span></p>
+    <p><span>Director:</span> <span id="movie-director"></span></p>
+</div>
 
 <script>
     // Parse the 'flix_data' JSON string to an array of objects
     const flixData = JSON.parse('{{{flix_data}}}');  // Use triple braces to insert the 'flix_data' JSON string
-
+    
     // Function to change the trailer being displayed
-    // Function to change the trailer being displayed
-function changeTrailer() {
-    // Randomly select a video from 'flixData'
-    const randomVideo = flixData[Math.floor(Math.random() * flixData.length)];
+    function changeTrailer() {
+        // Randomly select a video from 'flixData'
+        const randomVideo = flixData[Math.floor(Math.random() * flixData.length)];
 
-    // Check if the YouTube link is not empty
-    if (randomVideo.youtube_link != '') {
-        // Set the 'src' attribute of the iframe to the selected video's YouTube link
-        const iframe = document.getElementById('playlist-player');
-        iframe.src = randomVideo.youtube_link;
-    } else {
-        // If the YouTube link is empty, handle the situation (e.g., show an error message)
-        console.error('No trailer available for this movie.');
-        changeTrailer();
-        // You can also choose to try another trailer or take another action here
+        // Check if the YouTube link is not empty
+        if (randomVideo.youtube_link != '') {
+            // Set the 'src' attribute of the iframe to the selected video's YouTube link
+            const iframe = document.getElementById('movie-trailer');
+            iframe.src = randomVideo.youtube_link;
+        } else {
+            // If the YouTube link is empty, handle the situation (e.g., show an error message)
+            console.error('No trailer available for this movie.');
+            changeTrailer();
+            // You can also choose to try another trailer or take another action here
+        }
+        document.getElementById('movie-name').textContent = randomVideo.name;
+        document.getElementById('movie-description').textContent = randomVideo.description;
+        document.getElementById('movie-year').textContent = randomVideo.year;
+        document.getElementById('movie-director').textContent = randomVideo.director;
     }
-}
     // Change the trailer when the page loads
     changeTrailer();
 
     // Add an event listener to the "Change Trailer" button
     document.getElementById('change-trailer').addEventListener('click', changeTrailer);
 </script>
-
-
