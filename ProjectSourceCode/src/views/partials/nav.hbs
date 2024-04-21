@@ -1,36 +1,45 @@
 <style>
-        .navbar {
-            background-color: #000000; 
-        }
+  .navbar {
+    background-color: #000000;
+  }
 
-        .navbar-nav .nav-link {
-            color: #ffffff; 
-        }
+  .navbar-nav .nav-link {
+    color: #ffffff;
+  }
 
-        .navbar-nav .nav-link:hover {
-            color: #adb5bd;
-        }
-        
-        .form-control {
-            width: 200px; 
-        }
-        
-        #searchButton {
-            background-color: rgb(255, 0, 0); 
-            border-color: rgb(255, 0, 0); 
-            border-radius: 0;
-        }
+  .navbar-nav .nav-link:hover {
+    color: #adb5bd;
+  }
 
-        .btn-primary:hover {
-            background-color: #0056b3; 
-            border-color: #0056b3; 
-        }
-        .user-icon {
-            width: 30px; 
-            height: 30px; 
-            border-radius: 50%; 
-        }
+  .form-control {
+    width: 200px;
+  }
 
+  #searchButton {
+    background-color: rgb(255, 0, 0);
+    border-color: rgb(255, 0, 0);
+    border-radius: 0;
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+
+  .user-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+  }
+
+  #searchResults {
+    display: flex;
+    flex-wrap: wrap;
+    /* Allow items to wrap to the next line */
+    justify-content: space-between;
+    /* Distribute space between items */
+    color: white;
+  }
         
         
     </style>
@@ -109,6 +118,7 @@
             function displaySearchResults(movies) {
               const searchResultsDiv = document.getElementById('searchResults');
               searchResultsDiv.innerHTML = '';
+              
               movies.forEach(movie => {
                 const movieDiv = document.createElement('div');
                 movieDiv.innerHTML = `
@@ -119,5 +129,10 @@
             `;
                 searchResultsDiv.appendChild(movieDiv);
               });
+              document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                searchResultsDiv.innerHTML = ''; // Clear search results
+            }
+        });
             }
 </script>

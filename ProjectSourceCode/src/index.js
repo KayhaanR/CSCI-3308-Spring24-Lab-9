@@ -8,7 +8,6 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 const axios = require('axios');
-const multer = require('multer');
 const fs = require('fs');
 const db = require('./resources/js/db.js');
 const {predictionRouter, recommendMovies} = require('./resources/js/predictionModel/predictScript.js');
@@ -224,19 +223,15 @@ app.get('/home', (req, res) => {
 });
 
 app.get('/flix', (req, res) => {
-  const query = "SELECT movies.name, movies.description, movies.year, movies.director, movies.youtube_link FROM movies";
+  const query = "SELECT youtube_link FROM movies";
   db.any(query)
     .then(data => {
       console.log(data);  // Log the data
-      let dataStr = JSON.stringify(data);
-      dataStr = dataStr.replace(/'/g, "\\'");  // Escape single quotes
-      dataStr = dataStr.replace(/"/g, '\\"');  // Escape double quotes
       res.render('pages/flix', {
-        flix_data: dataStr
+        flix_data: JSON.stringify(data)  // Convert 'data' to a JSON string
       })
     })
 });
-
 
 app.get('/forYou', async (req, res) => {
   const username = req.session.user;
@@ -292,49 +287,35 @@ app.post('/search', async (req, res) => {
 });
 
 app.get('/profile', async (req, res) => {
-  if(req.session.user == null) {
-    res.redirect('/login')
-  }
-  else {
-    try {
-      const username = req.session.user;
-      // fetch the user's profile picture path from the database
-      const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1;', [username]);
-      
-      var avatar_id;
-      for (let i=0 ; i< avatarOptions.length; i++){
-        if (userData.profile_picture == avatarOptions[i].path){
-          avatar_id = avatarOptions[i].id
-        }
+  try {
+    const username = req.session.user;
+    // fetch the user's profile picture path from the database
+    const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1;', [username]);
+    const likedMovies = await db.any('SELECT * FROM movies WHERE movie_id IN (SELECT movie_id FROM user_to_movie_liked WHERE user_id = $1)', [username]);
+    const savedReviews = await db.any('SELECT * FROM reviews WHERE user_id = $1', [username]);
+    var avatar_id;
+    for (let i=0 ; i< avatarOptions.length; i++){
+      if (userData.profile_picture == avatarOptions[i].path){
+        avatar_id = avatarOptions[i].id
       }
+    }
       
-      // console.log(JSON.stringify(userData));
-      // console.log("This is the userdata: " + userData.profile_picture);
-      // console.log("This is the userdata pfp: " + avatar_id);
-      // userData.profile_picture = req.session.profile_picture;
-      // pass the user's profile picture path
       res.render('pages/profile', {
         profile_picture: (userData.profile_picture),
         username: req.session.user,
         selectedAvatar : avatar_id,
-        avatarOptions : avatarOptions
+        avatarOptions : avatarOptions,
+        likedMovies : likedMovies,
+        savedReviews: savedReviews
       });
-    } catch (error) {
+    } 
+    
+    catch (error) {
       console.error('Error fetching profile picture:', error);
       res.status(500).send('Internal Server Error');
-    }
-  }
-});
-
-var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './uploads')
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname)
-  }
-})
-var upload = multer({ storage: storage })
+    
+  } 
+  });
 
 app.use(express.static(__dirname + '/'));
 app.use('/resources', express.static('resources'));
@@ -345,7 +326,6 @@ app.post('/profile', async (req, res) => {
     const username = req.session.user;
     const selectedAvatarId = req.body.avatarId; // assuming the form sends the selected avatar ID
     console.log(selectedAvatarId);
-    
     const selectedAvatar = avatarOptions.find(avatar => avatar.id === parseInt(selectedAvatarId));
     console.log(selectedAvatar);
     if (!selectedAvatar) {
@@ -427,21 +407,20 @@ app.get('/welcome', (req, res) => {
   res.json({ status: 'success', message: 'Welcome!' });
 });
 
-app.post('/addReview', (req, res) => {
-  const movieID = req.query.movieID
-  const user = req.session.user
+app.post('/addReview', async (req, res) => {
+  const movieID = req.query.movieID;
+  const user = req.session.user;
 
-  db.any('SELECT * FROM reviews WHERE user_id = $1', [user]).then(data => {
-    if(data.length == 0) {
-      db.one('SELECT profile_picture FROM users WHERE username = $1', [user]).then(data => {
-        db.any('INSERT INTO reviews (movie_id, rating, external_review, avatar_path, user_id, review_text) VALUES ($1, $2, $3, $4, $5, $6)',
-       [movieID, req.body.rating, false, data.profile_picture, user, req.body.review]);
-      })
-    }
-  })
-
-  res.redirect(`/movieDetails?id=${movieID}`)
-})
+  try {
+    const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1', [user]);
+    await db.any('INSERT INTO reviews (movie_id, rating, external_review, avatar_path, user_id, review_text) VALUES ($1, $2, $3, $4, $5, $6)',
+      [movieID, req.body.rating, false, userData.profile_picture, user, req.body.review]);
+    res.redirect(`/movieDetails?id=${movieID}`);
+  } catch (error) {
+    console.error('Error adding review:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 app.post('/likeMovie', (req, res) => {
   const movieID = req.query.movieID
