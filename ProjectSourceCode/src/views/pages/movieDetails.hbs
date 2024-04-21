@@ -4,6 +4,8 @@
   }
   .card {
     border-radius: 0;
+    background: #333;
+    color: white;
   }
 
   .review {
@@ -19,9 +21,15 @@
     background-color: black;
   }
 
+   body {
+        background-color: #222;
+        color: white;
+        font-family: Arial, sans-serif;
+    }
 </style>
 
 {{>message}}
+<br>
 <div class="container">
   <div class="row">
 
@@ -107,22 +115,26 @@
 
 
 
- <div class="text-center">
-  <div class="col-md-8 ">
-    <h3>Reviews</h3>
-    {{#each reviews}}
-      <div class="card" style="width: 100%;">
-        <div class="card-body">
-          {{#if this.external_id}}
-            <h5 class="card-title">{{this.external_id}}</h5>
-          {{else}}
-            <h5 class="card-title">{{this.user_id}}</h5>
-          {{/if}}
-          <h6 class="card-subtitle mb-2 text-muted">{{this.rating}}/10</h6>
-          <p class="card-text">{{this.review_text}}</p>
-        </div>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="text-center">
+        <h3>Reviews</h3>
+        {{#each reviews}}
+          <div class="card" style="width: 100%;">
+            <div class="card-body">
+              {{#if this.external_id}}
+                <h5 class="card-title">{{this.external_id}}</h5>
+              {{else}}
+                <h5 class="card-title">{{this.user_id}}</h5>
+              {{/if}}
+              <h6 class="card-subtitle mb-2">{{this.rating}}/10</h6>
+              <p class="card-text">{{this.review_text}}</p>
+            </div>
+          </div>
+          <br>
+        {{/each}}
       </div>
-      <br>
-    {{/each}}
+    </div>
   </div>
 </div>
