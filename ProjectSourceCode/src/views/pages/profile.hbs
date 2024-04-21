@@ -81,7 +81,7 @@
         
         <div class="profile-row">
             <div class="profile-picture">
-                <h2 id="user-name" class="user-name">Thank you for using MovieMasters, {{username}}!</h2>
+                <h2 id="user-name" class="user-name">Thank you for using MovieMaster, {{username}}!</h2>
                 <form action="/profile" method="POST">
                     {{#if selectedAvatar}}
                     <img src="{{profile_picture}}" alt="Selected Avatar">
@@ -101,6 +101,7 @@
         </div>
         <div class="second-row-wrapper">
             <div class="saved-reviews">
+                <h2>Your Reviews:</h2>
                 <ul>
                     {{#if savedReviews.length}}
                     {{#each savedReviews}}
@@ -112,6 +113,7 @@
                 </ul>
             </div>
             <div class="saved-movies">
+                <h2>Your Movies:</h2>
                 {{#if likedMovies.length}}
                 <ul>
                     {{#each likedMovies}}

@@ -299,11 +299,7 @@ app.get('/profile', async (req, res) => {
         avatar_id = avatarOptions[i].id
       }
     }
-      // console.log(JSON.stringify(userData));
-      // console.log("This is the userdata: " + userData.profile_picture);
-      // console.log("This is the userdata pfp: " + avatar_id);
-      // userData.profile_picture = req.session.profile_picture;
-      // pass the user's profile picture path
+      
       res.render('pages/profile', {
         profile_picture: (userData.profile_picture),
         username: req.session.user,
@@ -416,14 +412,9 @@ app.post('/addReview', async (req, res) => {
   const user = req.session.user;
 
   try {
-    // Retrieve the user's profile picture
     const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1', [user]);
-    
-    // Insert the new review into the database
     await db.any('INSERT INTO reviews (movie_id, rating, external_review, avatar_path, user_id, review_text) VALUES ($1, $2, $3, $4, $5, $6)',
       [movieID, req.body.rating, false, userData.profile_picture, user, req.body.review]);
-    
-    // Redirect back to the movie details page after adding the review
     res.redirect(`/movieDetails?id=${movieID}`);
   } catch (error) {
     console.error('Error adding review:', error);
