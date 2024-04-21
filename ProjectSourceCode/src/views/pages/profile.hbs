@@ -1,92 +1,129 @@
 <style>
-            .second-row-wrapper{
-                text-align:center;
-                height:45%;
-                display:flex;
-                position: fixed;
-                bottom: 0;
-            }
-            .saved-movies{
-                display: inline-block; 
-                vertical-align: bottom;
-                background-color: #adb5bd; 
-                width: 50%;              
-            }
-            .saved-reviews{
-                display: inline-block;
-                 vertical-align: top;
-                 background-color: #adb5bd;
-                 width: 50%;
-            }
-            .profile-row{
-                text-align: center;
-                height: 45%;
-            }
-            .logout{
-                text-align: right;
-                height:5%;
-                margin-bottom: 20px;
-            }
-            .logout-button{
-            padding: 10px 20px;
-            background-color: #dc3545;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-            
-            }
-            .logout-button:hover {
-            background-color: #c82333;
-            }
-            .profile-image{
-                max-width: 100%;
-        max-height: 200px; /* set maximum height */
+    .second-row-wrapper {
+        text-align: center;
+        height: 45%;
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+    }
+
+    .saved-movies {
+        display: inline-block;
+        vertical-align: bottom;
+        background-color: #222;
+        color: white;
+        min-width: 50%;
+
+    }
+
+    .saved-reviews {
+        display: inline-block;
+        vertical-align: top;
+        background-color: #222;
+        color: white;
+        min-width: 50%;
+    }
+
+    .profile-row {
+        text-align: center;
+        height: 45%;
+    }
+
+    
+
+    .profile-image {
+        max-width: 100%;
+        max-height: 200px;
+        /* set maximum height */
         width: auto;
         height: auto;
         display: block;
-        margin: 0 auto; /* center the image */
-            }
-            
-        </style>
-    </head>
-    <body>
-        <div class="wrapper">
-            <div class="logout">
-                <a class="logout-button" href="/logout">Logout</a>
+        margin: 0 auto;
+        /* center the image */
+    }
+
+    body {
+        background-color: #222;
+    }
+
+    .user-name {
+        color: white
+    }
+
+    .saved-movies ul li a {
+        color: white;
+        /* Set the color to black */
+        text-decoration: underline;
+        /* Add an underline to indicate a link */
+    }
+
+    /* Saved Reviews Section */
+    .saved-reviews ul li a {
+        color: white;
+        /* Set the color to black */
+        text-decoration: underline;
+        /* Add an underline to indicate a link */
+    }
+
+    .saved-movies ul,
+    .saved-reviews ul {
+        list-style: none;
+        padding: 0;
+        /* Optional: Remove default padding */
+        margin: 0;
+        /* Optional: Remove default margin */
+    }
+</style>
+
+<body>
+    <div class="wrapper">
+        
+        <div class="profile-row">
+            <div class="profile-picture">
+                <h2 id="user-name" class="user-name">Thank you for using MovieMaster, {{username}}!</h2>
+                <form action="/profile" method="POST">
+                    {{#if selectedAvatar}}
+                    <img src="{{profile_picture}}" alt="Selected Avatar">
+                    <input type="hidden" name="avatarId" value="{{selectedAvatar.id}}">
+                    {{else}}
+                    {{#each avatarOptions}}
+                    <label>
+                        <input type="radio" name="avatarId" value="{{this.id}}">
+                        <img src="{{this.path}}" alt="Avatar {{this.id}}">
+                    </label>
+                    {{/each}}
+                    <button type="submit">Select Avatar</button>
+                    {{/if}}
+                </form>
             </div>
-            <div class="profile-row">
-                <div class="profile-picture"> 
-                    <p id="user-name">Hello, {{username}} </p>                  
-                    <form action="/profile" method="POST">
-                        {{#if selectedAvatar}}
-                        <img src="{{profile_picture}}" alt="Selected Avatar">
-                        <input type="hidden" name="avatarId" value="{{selectedAvatar.id}}">
-                        {{else}}
-                        {{#each avatarOptions}}
-                        <label>
-                            <input type="radio" name="avatarId" value="{{this.id}}">
-                            <img src="{{this.path}}" alt="Avatar {{this.id}}">
-                        </label>
-                        {{/each}}
-                        <button type="submit">Select Avatar</button>
-                        {{/if}}
-                    </form>
-                </div> 
-                           
+
+        </div>
+        <div class="second-row-wrapper">
+            <div class="saved-reviews">
+                <h2>Your Reviews:</h2>
+                <ul>
+                    {{#if savedReviews.length}}
+                    {{#each savedReviews}}
+                    <li><a href="/movieDetails?id={{this.movie_id}}">{{this.review_text}}</a></li>
+                    {{/each}}
+                    {{else}}
+                    <p>No saved reviews, review a movie and it will appear here</p>
+                    {{/if}}
+                </ul>
             </div>
-            <div class="second-row-wrapper">
-                <div class="saved-reviews">
-                    <ul>
-                        <li>saved reviews here, right here i am just p[utting a bunch of text in the div to test if the styling works properly, i am just doing this to see if the text wraps or not, this will all be replaced by dynamically generated hb content. </li>
-                        <li>more saved reviews, </li>
-                    </ul>
-                </div>
-                <div class="saved-movies">
-                    <ul>
-                        <li>saved movies</li>
-                        <li>more saved movies, right here i am just p[utting a bunch of text in the div to test if the styling works properly, i am just doing this to see if the text wraps or not, this will all be replaced by dynamically generated hb content.</li>
-                    </ul>
-                </div>
+            <div class="saved-movies">
+                <h2>Your Movies:</h2>
+                {{#if likedMovies.length}}
+                <ul>
+                    {{#each likedMovies}}
+                    <li><a href="/movieDetails?id={{this.movie_id}}">{{this.name}}</a></li>
+                    {{/each}}
+                </ul>
+                {{else}}
+                <p>No liked movies, start liking movies and they will appear here</p>
+                {{/if}}
             </div>
         </div>
+    </div>
+</body>
