@@ -223,12 +223,15 @@ app.get('/home', (req, res) => {
 });
 
 app.get('/flix', (req, res) => {
-  const query = "SELECT youtube_link FROM movies";
+  const query = "SELECT movies.name, movies.description, movies.year, movies.director, movies.youtube_link FROM movies";
   db.any(query)
     .then(data => {
       console.log(data);  // Log the data
+      let dataStr = JSON.stringify(data);
+      dataStr = dataStr.replace(/'/g, "\\'");  // Escape single quotes
+      dataStr = dataStr.replace(/"/g, '\\"');  // Escape double quotes
       res.render('pages/flix', {
-        flix_data: JSON.stringify(data)  // Convert 'data' to a JSON string
+        flix_data: dataStr
       })
     })
 });
