@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 const axios = require('axios');
 const fs = require('fs');
 const db = require('./resources/js/db.js');
-const { predictionRouter, recommendMovies } = require('./resources/js/predictionModel/predictScript.js');
+const {predictionRouter, recommendMovies} = require('./resources/js/predictionModel/predictScript.js');
 
 const apiKey = '61bad045';
 
@@ -57,8 +57,8 @@ async function addReviews(x) {
   };
 
   try {
-    await db.tx(async t => {
-      const res = await fetch(url, options);
+    await db.tx(async t => { 
+      const res = await fetch(url, options); 
       const json = await res.json();
       for (const review of json.results) {
         if (review.content.length < 4900) {
@@ -110,7 +110,7 @@ function fetchMovieData(x) {
     .then(json => {
       for (const tmdbData of json.results) {
 
-
+      
         // Fetch the videos data for the movie
         const videosUrl = `https://api.themoviedb.org/3/movie/${tmdbData.id}/videos?language=en-US`;
         fetch(videosUrl, options)
@@ -141,8 +141,8 @@ function fetchMovieData(x) {
                         db.any('INSERT INTO movies_to_genres (movie_id, genre_id) VALUES ($1, $2)', [tmdbData.id, genreId]);
                       }
                     })
-
-                  addReviews(tmdbData.id)
+              
+                    addReviews(tmdbData.id)
                 }
               })
           });
@@ -297,28 +297,28 @@ app.get('/profile', async (req, res) => {
     const likedMovies = await db.any('SELECT * FROM movies WHERE movie_id IN (SELECT movie_id FROM user_to_movie_liked WHERE user_id = $1)', [username]);
     const savedReviews = await db.any('SELECT * FROM reviews WHERE user_id = $1', [username]);
     var avatar_id;
-    for (let i = 0; i < avatarOptions.length; i++) {
-      if (userData.profile_picture == avatarOptions[i].path) {
+    for (let i=0 ; i< avatarOptions.length; i++){
+      if (userData.profile_picture == avatarOptions[i].path){
         avatar_id = avatarOptions[i].id
       }
     }
-
-    res.render('pages/profile', {
-      profile_picture: (userData.profile_picture),
-      username: req.session.user,
-      selectedAvatar: avatar_id,
-      avatarOptions: avatarOptions,
-      likedMovies: likedMovies,
-      savedReviews: savedReviews
-    });
-  }
-
-  catch (error) {
-    console.error('Error fetching profile picture:', error);
-    res.status(500).send('Internal Server Error');
-
-  }
-});
+      
+      res.render('pages/profile', {
+        profile_picture: (userData.profile_picture),
+        username: req.session.user,
+        selectedAvatar : avatar_id,
+        avatarOptions : avatarOptions,
+        likedMovies : likedMovies,
+        savedReviews: savedReviews
+      });
+    } 
+    
+    catch (error) {
+      console.error('Error fetching profile picture:', error);
+      res.status(500).send('Internal Server Error');
+    
+  } 
+  });
 
 app.use(express.static(__dirname + '/'));
 app.use('/resources', express.static('resources'));
@@ -343,7 +343,7 @@ app.post('/profile', async (req, res) => {
       username: req.session.user,
       selectedAvatar: selectedAvatar,
       profile_picture: f
-    });
+    }); 
   } catch (error) {
     console.error('Error selecting avatar:', error);
     res.status(500).send('Internal Server Error');
@@ -430,7 +430,7 @@ app.post('/likeMovie', (req, res) => {
   const user = req.session.user
 
   db.any('SELECT * FROM user_to_movie_liked WHERE user_id = $1 AND movie_id = $2', [user, movieID]).then(data => {
-    if (data.length == 0) {
+    if(data.length == 0) {
       db.any('INSERT INTO user_to_movie_liked (user_id, movie_id) VALUES ($1, $2)', [user, movieID])
     }
     else {
@@ -444,10 +444,10 @@ app.get('/movieDetails', (req, res) => {
   const movieId = req.query.id;
   db.one('SELECT * FROM movies WHERE movie_id = $1', [movieId]).then(data => {
     db.any('SELECT * FROM reviews WHERE movie_id = $1', [movieId]).then(reviewData => {
-      let isLiked = false;
-      if (req.session.user != null) {
+      let isLiked = false; 
+      if(req.session.user != null) {
         db.any('SELECT * FROM user_to_movie_liked WHERE user_id = $1 AND movie_id = $2', [req.session.user, movieId]).then(likedData => {
-          if (likedData.length != 0) {
+          if(likedData.length != 0) {
             isLiked = true;
           }
           res.render('pages/movieDetails', {
