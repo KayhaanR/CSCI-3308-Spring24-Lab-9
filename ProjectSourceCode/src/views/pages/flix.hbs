@@ -59,12 +59,29 @@
     }
 
     .movie-title-container {
-        display: inline-block;
-        /* Ensure the container wraps around the title */
+        display: inline-flex;
+        /* Change to inline-flex */
+        align-items: center;
+        /* Align items vertically in the center */
         border: 2px solid #ffffff;
-        /* Add a white border */
         padding: 5px 10px;
-        /* Add padding to the container */
+    }
+
+    #like-button {
+        margin-left: 20px;
+        background-color: #ffffff;
+        color: #000000;
+        border: 2px solid #707070;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        padding: 5px 15px;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    #like-button:hover {
+        background-color: #000000;
+        color: #ffffff;
     }
 
     #movie-name {
@@ -96,11 +113,10 @@
 <div id="movie-info">
     <div class="movie-title-container">
         <h2 id="movie-name"></h2>
+        <form id="like-form" method="POST" action="/likeMovie?movieID=">
+            <button type="submit" id="like-button"></button>
+        </form>
     </div>
-    <form id="like-form" method="POST" action="/likeMovie?movieID=">
-        <button type="submit" id="like-button">
-        </button>
-    </form>
     <p><span>Description:</span> <span id="movie-description"></span></p>
     <p><span>Year:</span> <span id="movie-year"></span></p>
     <p><span>Director:</span> <span id="movie-director"></span></p>
