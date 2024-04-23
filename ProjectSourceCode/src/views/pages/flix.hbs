@@ -97,6 +97,10 @@
     <div class="movie-title-container">
         <h2 id="movie-name"></h2>
     </div>
+    <form id="like-form" method="POST" action="/likeMovie?movieID=">
+        <button type="submit" id="like-button">
+        </button>
+    </form>
     <p><span>Description:</span> <span id="movie-description"></span></p>
     <p><span>Year:</span> <span id="movie-year"></span></p>
     <p><span>Director:</span> <span id="movie-director"></span></p>
@@ -105,13 +109,14 @@
 <script>
     // Parse the 'flix_data' JSON string to an array of objects
     const flixData = JSON.parse('{{{flix_data}}}');  // Use triple braces to insert the 'flix_data' JSON string
+    console.log(flixData);
 
     // Function to change the trailer being displayed
     function changeTrailer() {
         // Randomly select a video from 'flixData'
         const randomVideo = flixData[Math.floor(Math.random() * flixData.length)];
         // Check if the YouTube link is not empty
-        if (randomVideo.youtube_link != '') {
+        if (randomVideo.youtube_link !== '') {
             // Set the 'src' attribute of the iframe to the selected video's YouTube link
             const iframe = document.getElementById('movie-trailer');
             iframe.src = randomVideo.youtube_link;
@@ -125,9 +130,18 @@
         document.getElementById('movie-description').textContent = randomVideo.description;
         document.getElementById('movie-year').textContent = randomVideo.year;
         document.getElementById('movie-director').textContent = randomVideo.director;
+
+        // Set the action attribute of the form with the movieID
+        document.getElementById('like-form').action = `/likeMovie?movieID=${randomVideo.movie_id}`;
+
+        // Update the like button text content based on whether the movie is liked or not
+        const likeButton = document.getElementById('like-button');
+        likeButton.textContent = randomVideo.liked ? 'Unlike' : 'Like';
     }
+
     // Change the trailer when the page loads
     changeTrailer();
+
     // Add an event listener to the "Change Trailer" button
     document.getElementById('change-trailer').addEventListener('click', changeTrailer);
 </script>
