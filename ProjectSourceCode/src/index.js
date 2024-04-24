@@ -134,7 +134,7 @@ function fetchMovieData(x) {
                 if (omdbData.Title != null) {
 
                   //INSERT MOVIE INTO DB
-                  db.any(`INSERT INTO movies (movie_id, image_path, name, year, description,  director, language, metacritic_rating, imdb_rating, tmdb_rating, youtube_link) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+                  db.any(`INSERT INTO movies (movie_id, image_path, name, year, description,  director, language, metacritic_rating, imdb_rating, tmdb_rating, youtube_link) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT DO NOTHING`,
                     [tmdbData.id, omdbData.Poster, omdbData.Title, omdbData.Year, omdbData.Plot, omdbData.Director, omdbData.Language, omdbData.Metascore, omdbData.imdbRating, tmdbData.vote_average, youtubeLink]).then(data => {
                       //INSERT MOVIE INTO GENRE TO MOVIE Table
                       for (const genreId of tmdbData.genre_ids) {
@@ -323,6 +323,10 @@ app.post('/search', async (req, res) => {
 });
 
 app.get('/profile', async (req, res) => {
+  if(req.session.user == null) {
+    res.redirect('/login')
+  }
+  else {
   try {
     const username = req.session.user;
     // fetch the user's profile picture path from the database
@@ -351,6 +355,7 @@ app.get('/profile', async (req, res) => {
     res.status(500).send('Internal Server Error');
 
   }
+}
 });
 
 app.use(express.static(__dirname + '/'));
@@ -541,7 +546,7 @@ db.any('SELECT COUNT(*) FROM movies')
     const count = data[0].count;
     if (count === '0') {
       populateGenreId()
-      for (let i = 1; i < 10; i++) {
+      for (let i = 1; i < 15; i++) {
         fetchMovieData(i);
       }
     }

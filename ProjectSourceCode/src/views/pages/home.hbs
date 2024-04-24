@@ -120,7 +120,7 @@ h1 {
     <div class="scroll-holder">
       <div class="scroll-tray">
         <div>
-          {{#each (limit result 10 10)}}
+          {{#each (limit result 30 60)}}
             <a href="/movieDetails?id={{this.movie_id}}">
               <img src="{{this.image_path}}" alt="Gallery Image" />
             </a>
@@ -129,7 +129,7 @@ h1 {
       </div>
       <div class="scroll-tray">
         <div>
-          {{#each (limit result 0 10)}}
+          {{#each (limit result 0 30)}}
             <a href="/movieDetails?id={{this.movie_id}}">
               <img src="{{this.image_path}}" alt="Gallery Image" />
             </a>
