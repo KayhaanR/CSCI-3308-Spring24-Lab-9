@@ -18,7 +18,7 @@
   #searchButton {
     background-color: rgb(255, 0, 0);
     border-color: rgb(255, 0, 0);
-    border-radius: 0;
+    border-radius: 10px;
   }
 
   .btn-primary:hover {
@@ -40,8 +40,12 @@
     /* Distribute space between items */
     color: white;
   }
+  #searchButton:hover { /* Style for hover state */
+    background-color: #471717;
+    border-color: #ff3333;
+  }
         
-        
+  
     </style>
 <header>
  <nav class="navbar navbar-expand-sm border-bottom">
@@ -82,7 +86,7 @@
            </li>
            <li class = "nav-item">
              <a class="navbar-brand" href="/profile">
-              <img src="../../resources/img/icons.jpeg" width="30" height="30" alt="">
+              <img src="../../resources/img/icons.jpeg" width="30" height="30" alt="" class="user-icon">
             </a>
            </li>
            <li class = "nav-item">
@@ -99,6 +103,10 @@
 <script>
             document.getElementById('searchButton').addEventListener('click', async () => {
               const searchInput = document.getElementById('searchInput').value;
+              if (!searchInput.trim()) {
+        // If search input is empty, do nothing
+        return;
+    }
               try {
                 const response = await fetch('/search', {
                   method: 'POST',
@@ -114,7 +122,26 @@
                 // Handle error
               }
             });
-
+              document.getElementById('searchInput').addEventListener('keydown', async () => {
+                const searchInput = document.getElementById('searchInput').value;
+                if (event.key === 'Enter' && searchInput.trim() !== '') {
+              try {
+                const response = await fetch('/search', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ query: searchInput })
+                });
+                const data = await response.json();
+                displaySearchResults(data);
+              } catch (err) {
+                console.error('Error searching for movies:', err);
+                // Handle error
+              }
+            }
+              
+            });
             function displaySearchResults(movies) {
               const searchResultsDiv = document.getElementById('searchResults');
               searchResultsDiv.innerHTML = '';
@@ -129,9 +156,10 @@
             `;
                 searchResultsDiv.appendChild(movieDiv);
               });
+              
               document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
-                searchResultsDiv.innerHTML = ''; // Clear search results
+                searchResultsDiv.innerHTML = ''; // clear search results
             }
         });
             }
