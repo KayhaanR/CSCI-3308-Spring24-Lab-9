@@ -28,7 +28,7 @@ CREATE TABLE movies (
     description VARCHAR(450),
     year VARCHAR(20) NOT NULL,
     director VARCHAR(100) NOT NULL,
-    language VARCHAR(100) NOT NULL,
+    language VARCHAR(250) NOT NULL,
     -- Normalize ratings before calculating total rating. --
     metacritic_rating VARCHAR(5),
     imdb_rating VARCHAR(5),

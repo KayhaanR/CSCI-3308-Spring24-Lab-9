@@ -118,12 +118,18 @@ function fetchMovieData(x) {
           .then(videosData => {
             // Extract the YouTube video key from the videos data
             let youtubeLink = '';
-            for (const video of videosData.results) {
-              if (video.site === 'YouTube' && video.type === 'Trailer') {
-                youtubeLink = `https://www.youtube.com/embed/${video.key}`;
-                break;
+            try {
+              for (const video of videosData.results) {
+                if (video.site === 'YouTube' && video.type === 'Trailer') {
+                  youtubeLink = `https://www.youtube.com/embed/${video.key}`;
+                  break;
+                }
               }
             }
+            catch {
+              console.log("no trailers")
+            }
+
 
             // Fetch additional data from the OMDB API
             url = `https://www.omdbapi.com/?apikey=${apiKey}&t=${tmdbData.title}`;
@@ -546,7 +552,7 @@ db.any('SELECT COUNT(*) FROM movies')
     const count = data[0].count;
     if (count === '0') {
       populateGenreId()
-      for (let i = 1; i < 15; i++) {
+      for (let i = 1; i < 50; i++) {
         fetchMovieData(i);
       }
     }
