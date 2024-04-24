@@ -222,6 +222,14 @@ app.get('/home', (req, res) => {
 
 });
 
+
+Handlebars.registerHelper('limit', function(arr, start, limit) {
+  if (!Array.isArray(arr)) { return []; }
+  return arr.slice(start, start + limit);
+});
+
+
+
 app.get('/flix', (req, res) => {
   const username = req.session.user;
   if (!username) {

@@ -7,87 +7,141 @@
   <title>Home</title>
   <style>
     body {
-      background-color: #222;
-      font-family: Arial, sans-serif;
-      margin: 0;
-    }
+  background-color: #222;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  margin: 0;
+}
 
-    h1 {
-      color: white;
-      text-align: center;
-      font-size: 50px;
-      padding-top: 40px;
-      padding-bottom: 40px;
-      font-weight: normal;
-      margin-bottom: 0;
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
-    }
+h1 {
+  color: white;
+  text-align: center;
+  font-size: 3rem;
+  padding: 4rem 0;
+  font-weight: normal;
+  margin: 0;
+}
 
-    .scroll-tray {
-      white-space: nowrap;
-    }
+.scroll-tray {
+  white-space: nowrap;
+}
 
-    .scroll-tray div {
-      display: inline-block;
-    }
+.scroll-tray div {
+  display: inline-block;
+}
 
-    .scroll-tray img {
-      border-radius: 0.3rem;
-      margin: 7px 5px;
-      padding: 0;
-      width: 340px;
-    }
+.scroll-tray img {
+  border-radius: 0.3rem;
+  margin: 0.5rem;
+  padding: 0;
+  max-width: 100%;
+  height: auto;
+}
 
-    .scroll-holder {
-      overflow-x: hidden;
-    }
+.scroll-holder {
+  overflow-x: hidden;
+}
 
-    .scroll-holder .scroll-tray:first-child {
-      animation: scroll-tray-hero 180s linear infinite;
-    }
+.scroll-holder .scroll-tray:first-child {
+  animation: scroll-tray-hero 180s linear infinite;
+}
 
-    .scroll-holder .scroll-tray:last-child {
-      animation: scroll-tray-hero 120s linear infinite;
-    }
+.scroll-holder .scroll-tray:last-child {
+  animation: scroll-tray-hero 120s linear infinite;
+}
 
-    @keyframes scroll-tray-hero {
-      0% {
-        transform: translateX(0);
-      }
+@keyframes scroll-tray-hero {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100% - 5px)); /* Adjusted for smoother transition */
+  }
+}
 
-      99.99% {
-        transform: translateX(-7098px);
-      }
+.featured-content {
+  height: 80vh;
+  padding: 3rem;
+  position: relative;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), #151515),
+    url('../../uploads/godfather.jpg');
+  background-size: cover;
+  background-position: center;
+}
 
-      100% {
-        transform: translateX(0);
-      }
-    }
+.featured-title {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 2rem;
+}
+
+.featured-desc {
+  width: 100%;
+  max-width: 500px;
+  color: lightgray;
+  margin: 1.5rem 0;
+}
+
+.featured-button {
+  background-color: red;
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  border: none;
+  outline: none;
+  font-weight: bold;
+}
+
+.container {
+  /* width: 100vh; */
+  height: 100vh;
+}
+
+
+
   </style>
 </head>
 
 <body>
-  <section>
-    <h1>Welcome to Movie Master! Explore, Rate, and Discover the Magic of Movies.</h1>
+  <!--<section>
+    <h1>Welcome to Movie Master! Explore, Rate, and Discover the Magic of Movies.</h1>  
   </section>
-  <section>
+   -->
+<!--  <section>  -->
+  <div>
+    <div class="featured-content" style="background: linear-gradient(to bottom, rgba(0,0,0,0), #151515), url('../../uploads/godfather5.jpg' );">
+      <img class="featured-title" src="../../uploads/godfather_title.png" alt="">
+      <p class="featured-desc"> The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son...</p>
+      <a href="/movieDetails?id=238">
+        <button class="featured-button">Check Out</button>
+      </a>
+    </div>
+
+
     <div class="scroll-holder">
       <div class="scroll-tray">
         <div>
-          {{#each result}}
-          <a href="/movieDetails?id={{this.movie_id}}">
-          
-          <img src="{{this.image_path}}" alt="Gallery Image" />
-          </a>
+          {{#each (limit result 10 10)}}
+            <a href="/movieDetails?id={{this.movie_id}}">
+              <img src="{{this.image_path}}" alt="Gallery Image" />
+            </a>
           {{/each}}
         </div>
-
       </div>
       <div class="scroll-tray">
-
+        <div>
+          {{#each (limit result 0 10)}}
+            <a href="/movieDetails?id={{this.movie_id}}">
+              <img src="{{this.image_path}}" alt="Gallery Image" />
+            </a>
+          {{/each}}
+        </div>
       </div>
     </div>
-  </section>
+    
+  </div>
+
+  
+<!--  </section> -->
 </body>
 
 </html>
