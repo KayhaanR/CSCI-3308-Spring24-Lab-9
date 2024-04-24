@@ -1,4 +1,9 @@
 <style>
+    .wrapper{
+        text-align: center;
+     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+
+    }
     .second-row-wrapper {
         text-align: center;
         height: 45%;
@@ -6,6 +11,7 @@
         position: fixed;
         bottom: 0;
         width: 100%;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     }
 
     .saved-movies {
@@ -14,7 +20,10 @@
         background-color: #222;
         color: white;
         min-width: 50%;
-
+        overflow-y: scroll; /* Enable vertical scrollbar */
+        padding: 10px;
+        border: 1px solid #fff; /* Add border for better separation */
+        border-radius: 10px;
     }
 
     .saved-reviews {
@@ -23,11 +32,18 @@
         background-color: #222;
         color: white;
         min-width: 50%;
+        overflow-y: scroll; /* Enable vertical scrollbar */
+        
+        padding: 10px;
+        border: 1px solid #fff; /* Add border for better separation */
+        border-radius: 10px;
     }
 
     .profile-row {
         text-align: center;
         height: 45%;
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        
     }
 
     
@@ -53,16 +69,19 @@
 
     .saved-movies ul li a {
         color: white;
-        /* Set the color to black */
-        text-decoration: underline;
-        /* Add an underline to indicate a link */
+        text-decoration: none;
+        display: block;
+        padding: 5px 0; /* Add padding */
+        font-size: 18px;
     }
 
-    /* Saved Reviews Section */
+
     .saved-reviews ul li a {
         color: white;
-        /* Set the color to black */
-        text-decoration: underline;
+        text-decoration: none;
+        display: block;
+        padding: 5px 0; /* Add padding */
+        font-size: 18px;
         /* Add an underline to indicate a link */
     }
 
@@ -74,15 +93,50 @@
         margin: 0;
         /* Optional: Remove default margin */
     }
+    .saved-movies ul li a:hover,
+    .saved-reviews ul li a:hover {
+        background-color: #333; /* Darker background on hover */
+        border-radius: 5px; /* Rounded corners */
+    }
+    .select-avatar-button {
+        background-color: rgb(255, 0, 0);
+        border-color: rgb(255, 0, 0);
+        border-radius: 10px;
+        transition: background-color 0.3s, border-color 0.3s;
+        cursor: pointer;
+    }
+
+    .select-avatar-button:hover {
+        background-color: #ffcccc;
+        border-color: #ff0000;
+    }
+
+    .change-avatar-button {
+        background-color: rgba(255, 0, 0);
+        border-color: rgb(255, 0, 0);
+        border-radius: 10px;
+        transition: background-color 0.3s, border-color 0.3s;
+        cursor: pointer;
+    }
+
+    .change-avatar-button:hover {
+        background-color: #ffcccc;
+        border-color: #ff0000;
+    }
+    
 </style>
+
 
 <body>
     <div class="wrapper">
-        
+        <div>
+                    <h2 id="user-name" class="user-name">Thank you for using MovieMaster, {{username}}!</h2>
+                </div>
         <div class="profile-row">
             <div class="profile-picture">
-                <h2 id="user-name" class="user-name">Thank you for using MovieMaster, {{username}}!</h2>
-                <form action="/profile" method="POST">
+                
+                <div class="all-forms">
+                    <form action="/profile" method="POST">
                     {{#if selectedAvatar}}
                     <img src="{{profile_picture}}" alt="Selected Avatar">
                     <input type="hidden" name="avatarId" value="{{selectedAvatar.id}}">
@@ -93,9 +147,19 @@
                         <img src="{{this.path}}" alt="Avatar {{this.id}}">
                     </label>
                     {{/each}}
-                    <button type="submit">Select Avatar</button>
+                    <button type="submit" class="select-avatar-button">Select Avatar</button>
                     {{/if}}
                 </form>
+                {{#if noAvatarSelected}}
+                        <p style="color: red;">Please select an avatar.</p>
+                    {{/if}}
+                <form action="/changeProfile" method="POST">
+                {{#if selectedAvatar}}
+                <button type="submit" class="change-avatar-button">Change Avatar</button>
+                {{/if}}
+                </form>
+                </div>
+                
             </div>
 
         </div>
@@ -113,7 +177,7 @@
                 </ul>
             </div>
             <div class="saved-movies">
-                <h2>Your Movies:</h2>
+                <h2>Your Liked Movies:</h2>
                 {{#if likedMovies.length}}
                 <ul>
                     {{#each likedMovies}}

@@ -335,14 +335,13 @@ app.get('/profile', async (req, res) => {
         avatar_id = avatarOptions[i].id
       }
     }
-
     res.render('pages/profile', {
       profile_picture: (userData.profile_picture),
       username: req.session.user,
       selectedAvatar: avatar_id,
       avatarOptions: avatarOptions,
       likedMovies: likedMovies,
-      savedReviews: savedReviews
+      savedReviews: savedReviews,
     });
   }
 
@@ -365,20 +364,54 @@ app.post('/profile', async (req, res) => {
     const selectedAvatar = avatarOptions.find(avatar => avatar.id === parseInt(selectedAvatarId));
     console.log(selectedAvatar);
     if (!selectedAvatar) {
-      throw new Error('Invalid avatar ID');
+      const likedMovies = await db.any('SELECT * FROM movies WHERE movie_id IN (SELECT movie_id FROM user_to_movie_liked WHERE user_id = $1)', [username]);
+            const savedReviews = await db.any('SELECT * FROM reviews WHERE user_id = $1', [username]);
+            
+            return res.render('pages/profile', {
+                username: req.session.user,
+                likedMovies: likedMovies,
+                savedReviews: savedReviews,
+                avatarOptions: avatarOptions,
+                noAvatarSelected: true
+            });
     }
     // update the user's profile with the selected avatar
     const query = await db.one('UPDATE users SET profile_picture = $1 WHERE username = $2 returning *', [selectedAvatar.path, username]);
     console.log(query);
     req.session.profile_picture = selectedAvatar.path;
     const f = req.session.profile_picture;
+    const likedMovies = await db.any('SELECT * FROM movies WHERE movie_id IN (SELECT movie_id FROM user_to_movie_liked WHERE user_id = $1)', [username]);
+    const savedReviews = await db.any('SELECT * FROM reviews WHERE user_id = $1', [username]);
     res.render('pages/profile', {
       username: req.session.user,
       selectedAvatar: selectedAvatar,
-      profile_picture: f
+      profile_picture: f,
+      likedMovies: likedMovies,
+      savedReviews: savedReviews,
     });
   } catch (error) {
     console.error('Error selecting avatar:', error);
+    res.status(500).send('Internal Server Error');
+  }
+}); 
+app.post('/changeProfile', async (req, res) => {
+  try {
+    const username = req.session.user;
+    await db.none('UPDATE users SET profile_picture = NULL WHERE username = $1', [username]);
+    // fetch the user's profile picture path from the database
+    const userData = await db.one('SELECT profile_picture FROM users WHERE username = $1;', [username]);
+    const likedMovies = await db.any('SELECT * FROM movies WHERE movie_id IN (SELECT movie_id FROM user_to_movie_liked WHERE user_id = $1)', [username]);
+    const savedReviews = await db.any('SELECT * FROM reviews WHERE user_id = $1', [username]);
+    res.render('pages/profile', {
+      profile_picture: userData.profile_picture, 
+      username: req.session.user,
+      avatarOptions: avatarOptions,
+      likedMovies: likedMovies,
+      savedReviews: savedReviews
+      
+    });
+  } catch (error) {
+    console.error('Error updating/selecting avatar or fetching profile:', error);
     res.status(500).send('Internal Server Error');
   }
 });
