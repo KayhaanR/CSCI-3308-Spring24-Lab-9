@@ -126,7 +126,7 @@
 
 <script>
     // Parse the 'flix_data' JSON string to an array of objects
-    const flixData = JSON.parse('{{{flix_data}}}');  // Use triple braces to insert the 'flix_data' JSON string
+    const flixData = JSON.parse('{{{flix_data}}}'); 
     console.log(flixData);
 
     // Function to change the trailer being displayed
@@ -142,7 +142,6 @@
             // If the YouTube link is empty, handle the situation (e.g., show an error message)
             console.error('No trailer available for this movie.');
             changeTrailer();
-            // You can also choose to try another trailer or take another action here
         }
         document.getElementById('movie-name').textContent = randomVideo.name;
         document.getElementById('movie-description').textContent = randomVideo.description;
@@ -160,6 +159,5 @@
     // Change the trailer when the page loads
     changeTrailer();
 
-    // Add an event listener to the "Change Trailer" button
     document.getElementById('change-trailer').addEventListener('click', changeTrailer);
 </script>
