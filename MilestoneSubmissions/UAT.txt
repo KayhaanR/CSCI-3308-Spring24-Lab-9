@@ -20,12 +20,21 @@ All these tests will take place on localhost
   If the input for username and password is too short it should render a message saying this and clear the fields.
 
   Test 1: User input: username: "test", password: "password"
-    This will test an incorrect register as an account with that username already exists
+    This will test an incorrect register as an account that username already exists
+    User should receive a message saying that the username already exists.
   Test 2: User input: username: "test2", password: "password"
     This will test a valid registration and should add the user to the users table and redirect to the login page
   Test 3: User input username: "", password: ""
     This should give an error saying the inputs where too short and the username and password min length is 4.
 
 3. UAT for likedMovies:
-  User will click a button that adds a movie to their liked movie list. If they click it again it should remove the movie.
-  When the user goes to thier profile they should be able to see all of their liked movies.
+  User will click a button that should add a movie to their liked movie list. If they click it again it should remove the movie.
+  When the user goes to thier profile they should then be able to see all of their liked movies.
+  Likes will then be stored through user_to_movie_liked table in db
+
+4. UAT for For You:
+  User will first add movies to their liked movies list.
+  They will then navigate to the 'For You' page and see what movies the model recommends
+    Should display movies similar in genre or featured actors
+  They will then click on a recommended movie and like it
+    Movie should then be displayed in liked movies on user page
